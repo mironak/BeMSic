@@ -12,9 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BeMSic.BmsFileOperator\BeMSic.BmsFileOperator.csproj" />
-    <ProjectReference Include="..\BeMSic.Core\BeMSic.Core.csproj" />
-    <ProjectReference Include="..\BeMSic.Wave\BeMSic.Wave.csproj" />
+    <ProjectReference Include="..\..\BeMSic.BmsFileOperator\BeMSic.BmsFileOperator.csproj" />
+    <ProjectReference Include="..\..\BeMSic.Wave\BeMSic.Wave.csproj" />
   </ItemGroup>
 
   <ItemGroup>
