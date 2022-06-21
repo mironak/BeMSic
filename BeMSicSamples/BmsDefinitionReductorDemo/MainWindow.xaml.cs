@@ -79,7 +79,7 @@ namespace BmsDefinitionReductor
                 System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
                 var bms = File.ReadAllText(dialog.FileName, Encoding.GetEncoding("shift_jis"));
                 _bmsConverter = new BmsConverter(bms);
-                _files = FileList.GetWavFiles(_bmsConverter.Bms, bmsDirectory);
+                _files = FileList.GetWavsFullPath(_bmsConverter.Bms, bmsDirectory);
 
                 FilesListView.ItemsSource = GetDisplayedValuesList(_files);
                 DefinitionReductButton.IsEnabled = true;
@@ -147,7 +147,7 @@ namespace BmsDefinitionReductor
             {
                 await Task.Run(() =>
                 {
-                    var partialFiles = FileList.GetPartialWavList(_files!, start, end);
+                    var partialFiles = WavFileUnitUtility.GetPartialWavList(_files!, start, end);
                     var replaces = DefinitionReductor.GetWavReplaces(partialFiles, _progress, r2Val);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();

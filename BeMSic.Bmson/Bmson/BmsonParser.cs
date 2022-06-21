@@ -114,7 +114,7 @@ namespace BeMSic.Bmson
         /// <returns></returns>
         private long GetSampleEnd(long sampleStart, int chIndex, int index)
         {
-            if (_bmson.sound_channels[chIndex].notes.Length <= (index + 1))
+            if (_bmson!.sound_channels[chIndex].notes.Length <= (index + 1))
             {
                 return long.MaxValue;
             }

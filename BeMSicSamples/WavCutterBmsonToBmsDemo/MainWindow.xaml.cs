@@ -98,7 +98,7 @@ namespace WavCutterBmsonToBmsDemo
         private ObservableCollection<WavList> GetWavObservableCollection()
         {
             var list = new ObservableCollection<WavList>();
-            for (int i = 0; i < _bmson.Bmson!.sound_channels.Length; i++)
+            for (int i = 0; i < _bmson?.Bmson!.sound_channels.Length; i++)
             {
                 list.Add(new WavList { ID = i, Name = _bmson.Bmson.sound_channels[i].name });
             }
