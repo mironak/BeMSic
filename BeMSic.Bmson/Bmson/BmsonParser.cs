@@ -1,5 +1,4 @@
 ﻿using BeMSic.Core.BmsDefinition;
-using NAudio.Wave;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 
@@ -39,70 +38,34 @@ namespace BeMSic.Bmson
         /// <returns>BMSテキスト</returns>
         public string CutWav(string saveDirectory, string readWavFilePath, int chIndex)
         {
-            var wfr = new WaveFileReader(readWavFilePath);
-            return WriteFiles(saveDirectory, chIndex, wfr);
-        }
+            var waveIO = new Wave.WaveManipulator.WaveIO(readWavFilePath);
 
-        /// <summary>
-        /// Write files(cut wav, definition text)
-        /// </summary>
-        /// <param name="saveDirectory"></param>
-        /// <param name="chIndex"></param>
-        /// <param name="wfr"></param>
-        private string WriteFiles(string saveDirectory, int chIndex, WaveFileReader wfr)
-        {
-            _coef = CalculateCoefficient(_bmson!.info.resolution, wfr);
+            _coef = CalculateCoefficient(_bmson!.info.resolution, waveIO.GetSamplePerSeccond());
 
-            var bmsBuilder = new BmsBuilder(_bmson!);
+            BmsBuilder bmsBuilder = new BmsBuilder(_bmson!, chIndex);
 
             long sampleStart = (long)((double)_bmson!.sound_channels[chIndex].notes[0].y * _coef / _bmson.info.init_bpm);
             for (int i = 0; i < _bmson!.sound_channels[chIndex].notes.Length; i++)
             {
-                long sampleEnd = GetSampleEnd(sampleStart, chIndex, i);
-                if (sampleEnd > wfr.Length)
-                {
-                    sampleEnd = wfr.Length;
-                }
+                long sampleEnd = Math.Min(GetSampleEnd(sampleStart, chIndex, i), waveIO.GetWaveSampleLength());
 
                 string wavFilePath = GetSaveFilePath(saveDirectory, _bmson.sound_channels[chIndex].name, sampleStart, sampleEnd);
-                OutputTrimedWav(wavFilePath, wfr, sampleStart, sampleEnd);
+                waveIO.Write(wavFilePath, sampleStart, sampleEnd);
                 bmsBuilder.AppendWav(new WavFileUnit(i, Path.GetFileName(wavFilePath)));
                 sampleStart = sampleEnd;
             }
 
-            return bmsBuilder.Generate(chIndex);
-        }
-
-        /// <summary>
-        /// Output trimed wav file
-        /// </summary>
-        /// <param name="wavFilePath"></param>
-        /// <param name="wfr"></param>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        private void OutputTrimedWav(string wavFilePath, WaveFileReader wfr, long start, long end)
-        {
-            using (var writeSr = new WaveFileWriter(wavFilePath, 
-                                                    new WaveFormat( wfr.WaveFormat.SampleRate, 
-                                                                    wfr.WaveFormat.BitsPerSample, 
-                                                                    wfr.WaveFormat.Channels)))
-            {
-                BeMSic.Wave.WaveManipulator.Wave.TrimWavFile(wfr, writeSr, start, end);
-            }
+            return bmsBuilder.Generate();
         }
 
         /// <summary>
         /// 係数を計算する
         /// </summary>
         /// <param name="bmsonResolution">BMSON解像度</param>
-        /// <param name="wfr"></param>
-        private double CalculateCoefficient(int bmsonResolution, WaveFileReader wfr)
+        /// <param name="samplePerSeccond"></param>
+        private double CalculateCoefficient(int bmsonResolution, double samplePerSeccond)
         {
-            return 240.0 / 
-                (bmsonResolution * 4) * 
-                wfr.WaveFormat.SampleRate * 
-                (wfr.WaveFormat.BitsPerSample / 8) * 
-                wfr.WaveFormat.Channels;
+            return 240.0 / (bmsonResolution * 4) * samplePerSeccond;
         }
 
         /// <summary>
@@ -152,7 +115,6 @@ namespace BeMSic.Bmson
             }
             var lastLength = endPosition - prevSample;
             sampleEnd += (long)((double)lastLength * _coef / nowBpm);
-
 
             return sampleEnd;
         }

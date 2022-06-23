@@ -48,7 +48,7 @@ namespace BeMSic.Bmson
             public int Key { get; set; }
         }
 
-        List<WavFileUnit> _wavs = new List<WavFileUnit>();      // #WAV
+        List<WavFileUnit> _wavs;      // #WAV
         List<double> _exbpms = new List<double>();   // BPM(その他)
         Bmson _bmson;
         StringBuilder _builder = new StringBuilder();
@@ -57,9 +57,11 @@ namespace BeMSic.Bmson
         /// <summary>
         /// Constructor
         /// </summary>
-        public BmsBuilder(Bmson bmson)
+        public BmsBuilder(Bmson bmson, int soundIndex)
         {
             _bmson = bmson;
+            _soundIndex = soundIndex;
+            _wavs = new List<WavFileUnit>();
         }
 
         /// <summary>
@@ -74,10 +76,8 @@ namespace BeMSic.Bmson
         /// <summary>
         /// BMSテキストを生成する
         /// </summary>
-        public string Generate(int soundIndex)
+        public string Generate()
         {
-            _soundIndex = soundIndex;
-
             SetBmsHeaderField();
             SetWavField();
             SetBpmField();
