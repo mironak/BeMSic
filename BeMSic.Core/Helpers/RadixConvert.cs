@@ -1,8 +1,11 @@
 ﻿namespace BeMSic.Core.Helpers
 {
-    static public class RadixConvert
+    /// <summary>
+    /// 基数変換
+    /// </summary>
+    public static class RadixConvert
     {
-        const int ZZRadix = 36;
+        private const int ZZRadix = 36;
 
         /// <summary>
         /// Convert integer to 2-digit 36-ary number
@@ -30,7 +33,7 @@
                 throw new ArgumentOutOfRangeException();
             }
 
-            int result = ZToInt(Convert.ToChar(zz[0])) * ZZRadix + ZToInt(Convert.ToChar(zz[1]));
+            int result = (ZToInt(Convert.ToChar(zz[0])) * ZZRadix) + ZToInt(Convert.ToChar(zz[1]));
             return result;
         }
 
@@ -41,12 +44,12 @@
         /// <returns>1-digit 36-ary number</returns>
         private static char IntToZ(int value)
         {
-            if((0 <= value) && (value <= 9))
+            if ((value >= 0) && (value <= 9))
             {
                 return (char)(value + '0');
             }
 
-            if ((10 <= value) && (value < ZZRadix))
+            if ((value >= 10) && (value < ZZRadix))
             {
                 return (char)(value - 10 + 'A');
             }
@@ -57,18 +60,18 @@
         /// <summary>
         /// Convert 1-digit 36-ary number(string) to integer
         /// </summary>
-        /// <param name="str">1-digit 36-ary number</param>
+        /// <param name="c">1-digit 36-ary number</param>
         /// <returns>integer</returns>
         private static int ZToInt(char c)
         {
             // 0-9
-            if(('0' <= c) && (c <= '9'))
+            if ((c >= '0') && (c <= '9'))
             {
                 return c - '0';
             }
 
             // A-Z
-            if (('A' <= c) && (c <= 'Z'))
+            if ((c >= 'A') && (c <= 'Z'))
             {
                 return c - 'A' + 10;
             }

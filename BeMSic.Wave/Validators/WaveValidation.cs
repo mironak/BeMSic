@@ -1,6 +1,9 @@
-﻿namespace BeMSic.Wave.DefinitionReductor.Validators
+﻿namespace BeMSic.Wave.Validators
 {
-    static public class WaveValidation
+    /// <summary>
+    /// wav比較関数
+    /// </summary>
+    public static class WaveValidation
     {
         /// <summary>
         /// Calculate coefficient of determination
@@ -9,7 +12,7 @@
         /// <param name="wav1">wav data 1</param>
         /// <param name="wav2">wav data 2</param>
         /// <returns>Match Rate</returns>
-        static public float CalculateRSquared(float[] wav1, float[] wav2)
+        public static float CalculateRSquared(float[] wav1, float[] wav2)
         {
             float wav1Average = wav1.Average();
 
@@ -22,6 +25,7 @@
                 rss += wav1RssTemp * wav1RssTemp;
                 dss += wav2DssTemp * wav2DssTemp;
             }
+
             return 1.0F - (rss / dss);
         }
     }

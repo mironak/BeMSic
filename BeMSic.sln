@@ -7,6 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BeMSic", "BeMSic\BeMSic.csp
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DDBB8614-673F-4567-B274-4FA9746CE038}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -25,6 +26,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WavCutterBmsonToBmsDemo", "BeMSicSamples\WavCutterBmsonToBmsDemo\WavCutterBmsonToBmsDemo.csproj", "{EB342F86-CEE7-4FF2-ACC9-D534CB94DA14}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BmsDefinitionReductorDemo", "BeMSicSamples\BmsDefinitionReductorDemo\BmsDefinitionReductorDemo.csproj", "{F8AA3B7C-0BB7-4986-81D5-4BF315150A81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{044A58F6-F956-4072-B07F-3269F9205D68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

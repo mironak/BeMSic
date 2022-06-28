@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace BeMSic.BmsFileOperator
+namespace BeMSic.BmsFileOperator.LineOperation
 {
     internal static class BmsCommandSearch
     {
@@ -22,7 +22,7 @@ namespace BeMSic.BmsFileOperator
         /// <returns>BMSコマンド</returns>
         internal static BmsCommand GetLineCommand(string line)
         {
-            if (String.IsNullOrEmpty(line))
+            if (string.IsNullOrEmpty(line))
             {
                 return BmsCommand.NONE;
             }
@@ -62,6 +62,7 @@ namespace BeMSic.BmsFileOperator
             {
                 return true;
             }
+
             return false;
         }
 
@@ -87,6 +88,7 @@ namespace BeMSic.BmsFileOperator
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -114,6 +116,7 @@ namespace BeMSic.BmsFileOperator
 
                 return true;
             }
+
             return false;
         }
     }

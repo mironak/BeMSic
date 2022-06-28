@@ -11,7 +11,7 @@ namespace WavCutterBmsonToBmsDemo
     /// </summary>
     public partial class MainWindow : Window
     {
-        BmsonMain? _bmson;
+        BmsonParser? _bmson;
         string _bmsonFileName = "";
 
         class WavList
@@ -48,7 +48,7 @@ namespace WavCutterBmsonToBmsDemo
                     _bmsonFileName = dialog.FileName;
 
                     var bmsonText = File.ReadAllText(_bmsonFileName);
-                    _bmson = new BmsonMain(bmsonText);
+                    _bmson = new BmsonParser(bmsonText);
 
                     WavComboBox.ItemsSource = GetWavObservableCollection();
                     WavComboBox.SelectedIndex = 0;

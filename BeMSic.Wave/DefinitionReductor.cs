@@ -1,9 +1,13 @@
 ﻿using BeMSic.Core.BmsDefinition;
-using BeMSic.Wave.DefinitionReductor.Validators;
+using BeMSic.Wave.FileOperation;
+using BeMSic.Wave.Validators;
 using NAudio.Wave;
 
-namespace BeMSic.Wave.DefinitionReductor
+namespace BeMSic.Wave
 {
+    /// <summary>
+    /// 定義削減
+    /// </summary>
     public static class DefinitionReductor
     {
         /// <summary>
@@ -13,6 +17,7 @@ namespace BeMSic.Wave.DefinitionReductor
         /// <param name="progress">IProgress</param>
         /// <param name="r2val">Match rate threshold</param>
         /// <param name="comparator">Evaluation function</param>
+        /// <returns>置換テーブル</returns>
         public static List<WavFileUnit> GetReplacedTable(
             List<WavFileUnit> originalFiles,
             IProgress<int> progress,
@@ -21,7 +26,7 @@ namespace BeMSic.Wave.DefinitionReductor
         {
             progress.Report(0);
 
-            List<WavFileUnit> replacedFiles = GetInitReplacedFiles(originalFiles);
+            List<WavFileUnit> replacedFiles = new List<WavFileUnit>(originalFiles);
             WaveStream[] readers = PreserveWavFileReader(originalFiles);
 
             // Compare wavs
@@ -31,59 +36,52 @@ namespace BeMSic.Wave.DefinitionReductor
 
                 progress.Report((int)((float)i / originalFiles.Count * 100));
             }
+
             progress.Report(100);
             return replacedFiles;
         }
 
         /// <summary>
-        /// Create replaced .wav files table.
+        /// wav置換テーブルを取得(デフォルト比較関数使用)
         /// </summary>
         /// <param name="originalFiles">Original files</param>
         /// <param name="progress">IProgress</param>
         /// <param name="r2val">Match rate threshold</param>
+        /// <returns>置換テーブル</returns>
         public static List<WavFileUnit> GetReplacedTable(List<WavFileUnit> originalFiles, IProgress<int> progress, float r2val)
         {
             return GetReplacedTable(originalFiles, progress, r2val, WaveValidation.CalculateRSquared);
         }
 
         /// <summary>
-        /// Create replaced .wav files table.
+        /// wav置換テーブルを取得
         /// </summary>
         /// <param name="originalFiles">Original files</param>
         /// <param name="progress">IProgress</param>
         /// <param name="r2val">Match rate threshold</param>
+        /// <returns>置換テーブル</returns>
         public static List<BmsReplace> GetWavReplaces(List<WavFileUnit> originalFiles, IProgress<int> progress, float r2val)
         {
             List<BmsReplace> replaces = new List<BmsReplace>();
             var replaced = GetReplacedTable(originalFiles, progress, r2val, WaveValidation.CalculateRSquared);
 
-            for(int i = 0; i < originalFiles.Count; i++)
+            for (int i = 0; i < originalFiles.Count; i++)
             {
-                replaces.Add(new BmsReplace { NowDefinition = originalFiles[i].Num, NewDefinition = replaced[i].Num });
+                replaces.Add(new BmsReplace(originalFiles[i].Num, replaced[i].Num));
             }
-            return replaces;
-        }
 
-        /// <summary>
-        /// Get init replaced files
-        /// </summary>
-        /// <param name="originalFiles"></param>
-        /// <returns></returns>
-        private static List<WavFileUnit> GetInitReplacedFiles(List<WavFileUnit> originalFiles)
-        {
-            List<WavFileUnit> replacedFiles = new List<WavFileUnit>(originalFiles);
-            return replacedFiles;
+            return replaces;
         }
 
         /// <summary>
         /// replace wav
         /// </summary>
-        /// <param name="originalFiles"></param>
-        /// <param name="replacedFiles"></param>
-        /// <param name="r2val"></param>
-        /// <param name="comparator"></param>
-        /// <param name="readers"></param>
-        /// <param name="index"></param>
+        /// <param name="originalFiles">置換対象</param>
+        /// <param name="replacedFiles">置換リスト</param>
+        /// <param name="r2val">相関係数</param>
+        /// <param name="comparator">比較関数</param>
+        /// <param name="readers">WaveStream</param>
+        /// <param name="index">WaveStreamのインデックス</param>
         private static void ReplaceWav(
             WavFileUnit originalFiles,
             List<WavFileUnit> replacedFiles,
@@ -115,21 +113,22 @@ namespace BeMSic.Wave.DefinitionReductor
         }
 
         /// <summary>
-        /// Preserve WaveFileReader 
+        /// Preserve WaveFileReader
         /// </summary>
-        /// <param name="originalFiles"></param>
-        /// <returns></returns>
+        /// <param name="wavFileUnits">#WAV一覧(絶対パス)</param>
+        /// <returns>WaveStream</returns>
         private static WaveStream[] PreserveWavFileReader(List<WavFileUnit> wavFileUnits)
         {
             WaveStream[] readers = new WaveStream[wavFileUnits.Count];
             for (int i = 0; i < wavFileUnits.Count; i++)
             {
-                var reader = Wave.WaveManipulator.Wave.GetWaveStream(wavFileUnits[i].Name);
-                if(reader != null)
+                var reader = WaveIO.GetWaveStream(wavFileUnits[i].Name);
+                if (reader != null)
                 {
                     readers[i] = reader;
                 }
             }
+
             return readers;
         }
     }

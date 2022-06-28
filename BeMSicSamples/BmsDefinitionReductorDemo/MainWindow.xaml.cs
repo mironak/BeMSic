@@ -1,7 +1,7 @@
 ﻿using BeMSic.BmsFileOperator;
 using BeMSic.Core.BmsDefinition;
 using BeMSic.Core.Helpers;
-using BeMSic.Wave.DefinitionReductor;
+using BeMSic.Wave;
 using BmsDefinitionReductorDemo.Class;
 using Microsoft.Win32;
 using NAudio.Wave;
@@ -147,7 +147,7 @@ namespace BmsDefinitionReductor
             {
                 await Task.Run(() =>
                 {
-                    var partialFiles = WavFileUnitUtility.GetPartialWavList(_files!, start, end);
+                    var partialFiles = WavFileUnitUtility.GetPartialWavs(_files!, start, end);
                     var replaces = DefinitionReductor.GetWavReplaces(partialFiles, _progress, r2Val);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();

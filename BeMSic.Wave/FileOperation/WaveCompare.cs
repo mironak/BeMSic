@@ -1,25 +1,28 @@
 ﻿using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
 
-namespace BeMSic.Wave.DefinitionReductor
+namespace BeMSic.Wave.FileOperation
 {
-    static public class WaveCompare
+    /// <summary>
+    /// 音声比較
+    /// </summary>
+    public static class WaveCompare
     {
         /// <summary>
         /// Delegate for compare 2 .wav files
         /// </summary>
         /// <param name="wav1">wav data 1</param>
         /// <param name="wav2">wav data 2</param>
-        /// <returns>Match Rate</returns>
+        /// <returns>一致度</returns>
         public delegate float ValidComparator(float[] wav1, float[] wav2);
 
         /// <summary>
         /// Match judgment of 2 wavs
         /// </summary>
-        /// <param name="wav1">File path of .wav file 1</param>
-        /// <param name="wav2">File path of .wav file 2</param>
-        /// <param name="r2val">Match rate threshold</param>
-        /// <param name="comparator">Evaluation function</param>
+        /// <param name="reader1">reader1</param>
+        /// <param name="reader2">reader2</param>
+        /// <param name="r2val">一致度</param>
+        /// <param name="comparator">評価関数</param>
         /// <returns>If 2 wav datas are match, return true</returns>
         public static bool IsMatch(WaveStream reader1, WaveStream reader2, float r2val, ValidComparator comparator)
         {
@@ -34,11 +37,11 @@ namespace BeMSic.Wave.DefinitionReductor
         /// <summary>
         /// Calculate all match rate
         /// </summary>
-        /// <param name="reader1"></param>
-        /// <param name="reader2"></param>
-        /// <param name="r2val"></param>
-        /// <param name="comparator"></param>
-        /// <returns></returns>
+        /// <param name="reader1">reader1</param>
+        /// <param name="reader2">reader2</param>
+        /// <param name="r2val">一致度</param>
+        /// <param name="comparator">評価関数</param>
+        /// <returns>データ終了ならtrue</returns>
         private static bool CalculateAllMatchRate(WaveStream reader1, WaveStream reader2, float r2val, ValidComparator comparator)
         {
             reader1.Position = 0;
@@ -73,7 +76,7 @@ namespace BeMSic.Wave.DefinitionReductor
         /// <param name="r1">.wav file 1</param>
         /// <param name="r2">.wav file 2</param>
         /// <returns>If the settings of the 2 wav files are same, return true</returns>
-        static private bool IsSameSetting(WaveStream r1, WaveStream r2)
+        private static bool IsSameSetting(WaveStream r1, WaveStream r2)
         {
             if (r1.WaveFormat.SampleRate != r2.WaveFormat.SampleRate)
             {
@@ -101,7 +104,7 @@ namespace BeMSic.Wave.DefinitionReductor
         /// <param name="channelNum">Channel number of wav</param>
         /// <param name="comparator">Evaluation function</param>
         /// <returns>Match Rate</returns>
-        static private float CalculateMatchRate(float[] wav1, float[] wav2, int channelNum, ValidComparator comparator)
+        private static float CalculateMatchRate(float[] wav1, float[] wav2, int channelNum, ValidComparator comparator)
         {
             var wav1Ch = new float[wav1.Length / channelNum];
             var wav2Ch = new float[wav2.Length / channelNum];
@@ -121,6 +124,7 @@ namespace BeMSic.Wave.DefinitionReductor
                     minimumMatchRate = matchRate;
                 }
             }
+
             return minimumMatchRate;
         }
     }
