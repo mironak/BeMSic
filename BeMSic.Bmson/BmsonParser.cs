@@ -13,7 +13,7 @@ namespace BeMSic.Bmson
         /// <summary>
         /// BMSON text
         /// </summary>
-        private BmsonFormat? _bmson;
+        private readonly BmsonFormat? _bmson;
         private double _coef;
 
         /// <summary>
@@ -22,12 +22,13 @@ namespace BeMSic.Bmson
         /// <param name="bmson">BMSONテキスト</param>
         public BmsonParser(string bmson)
         {
-            var options = new JsonSerializerOptions
+            JsonSerializerOptions options = new ()
             {
                 Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
                 ReadCommentHandling = JsonCommentHandling.Skip,
                 AllowTrailingCommas = true,
             };
+
             _bmson = JsonSerializer.Deserialize<BmsonFormat>(bmson, options);
         }
 
@@ -48,23 +49,34 @@ namespace BeMSic.Bmson
         /// <returns>BMSテキスト</returns>
         public string CutWav(string saveDirectory, string readWavFilePath, int chIndex)
         {
-            var waveIO = new Wave.WaveManipulator(readWavFilePath);
+            Wave.WaveManipulator waveIO = new (readWavFilePath);
 
             _coef = CalculateCoefficient(_bmson!.info.resolution, waveIO.GetSamplePerSeccond());
 
-            BmsBuilder bmsBuilder = new BmsBuilder(_bmson!, chIndex);
+            BmsBuilder bmsBuilder = new (_bmson!, chIndex);
 
             if (_bmson.sound_channels[chIndex].notes != null)
             {
                 long sampleStart = (long)(_bmson!.sound_channels[chIndex].notes[0].y * _coef / _bmson.info.init_bpm);
+                long prevContinuous = 0;
+
                 for (int i = 0; i < _bmson!.sound_channels[chIndex].notes.Length; i++)
                 {
-                    long sampleEnd = Math.Min(GetSampleEnd(sampleStart, chIndex, i), waveIO.GetWaveSampleLength());
+                    if (!_bmson.sound_channels[chIndex].notes[i].c)
+                    {
+                        prevContinuous = sampleStart;
+                    }
 
-                    string wavFilePath = GetSaveFilePath(saveDirectory, _bmson.sound_channels[chIndex].name, sampleStart, sampleEnd);
-                    waveIO.Trim(wavFilePath, sampleStart, sampleEnd);
+                    long sampleNext = Math.Min(GetSampleEnd(sampleStart, chIndex, i), waveIO.GetWaveSampleLength() + prevContinuous);
+
+                    string wavFilePath = GetSaveFilePath(
+                        saveDirectory,
+                        _bmson.sound_channels[chIndex].name,
+                        sampleStart,
+                        sampleNext);
+                    waveIO.Trim(wavFilePath, sampleStart - prevContinuous, sampleNext - prevContinuous);
                     bmsBuilder.AppendWav(new WavFileUnit(i, Path.GetFileName(wavFilePath)));
-                    sampleStart = sampleEnd;
+                    sampleStart = sampleNext;
                 }
             }
 
@@ -76,9 +88,25 @@ namespace BeMSic.Bmson
         /// </summary>
         /// <param name="bmsonResolution">BMSON解像度</param>
         /// <param name="samplePerSeccond">1秒あたりのサンプル数</param>
-        private double CalculateCoefficient(int bmsonResolution, double samplePerSeccond)
+        private static double CalculateCoefficient(int bmsonResolution, double samplePerSeccond)
         {
             return 240.0 / (bmsonResolution * 4) * samplePerSeccond;
+        }
+
+        /// <summary>
+        /// 保存するWAVファイル名を作成する
+        /// </summary>
+        /// <param name="saveDirectory">保存先ディレクトリ</param>
+        /// <param name="fileName">ファイル名</param>
+        /// <param name="start">サンプル開始位置</param>
+        /// <param name="end">サンプル終了位置</param>
+        /// <returns>保存wavファイルパス</returns>
+        private static string GetSaveFilePath(string saveDirectory, string fileName, long start, long end)
+        {
+            return Path.ChangeExtension(
+                saveDirectory + "\\" +
+                Path.GetFileNameWithoutExtension(fileName) + $"_{start}_{end}",
+                ".wav");
         }
 
         /// <summary>
@@ -96,11 +124,42 @@ namespace BeMSic.Bmson
             }
 
             // sampleStartから次のノートまでの間のbpm変化を取得
-            var bpmChanges = new List<BpmEvents>();
-            var startBpm = _bmson.info.init_bpm;
+            (List<BpmEvents> bpmChanges, double startBpm) = GetBpmChanges(chIndex, index);
+
+            // sampleStartからbpm変化ごとのサンプル数を足し合わせる
+            long sampleEnd = sampleStart;
+            ulong prevSample = _bmson.sound_channels[chIndex].notes[index].y;
+            double nowBpm = startBpm;
+
+            foreach (BpmEvents bpm in bpmChanges)
+            {
+                ulong length = bpm.y - prevSample;
+                sampleEnd += (long)(length * _coef / nowBpm);
+
+                prevSample = bpm.y;
+                nowBpm = bpm.bpm;
+            }
+
+            ulong lastLength = _bmson.sound_channels[chIndex].notes[index + 1].y - prevSample;
+            sampleEnd += (long)(lastLength * _coef / nowBpm);
+
+            return sampleEnd;
+        }
+
+        /// <summary>
+        /// BPM変更一覧取得
+        /// </summary>
+        /// <param name="chIndex">音声インデックス</param>
+        /// <param name="index">ノートインデックス</param>
+        /// <returns>BPM変更一覧</returns>
+        private (List<BpmEvents>, double) GetBpmChanges(int chIndex, int index)
+        {
+            List<BpmEvents> bpmChanges = new ();
+            double startBpm = _bmson!.info.init_bpm;
             bool startFlag = true;
-            var startPosition = _bmson.sound_channels[chIndex].notes[index].y;
-            var endPosition = _bmson.sound_channels[chIndex].notes[index + 1].y;
+            ulong startPosition = _bmson.sound_channels[chIndex].notes[index].y;
+            ulong endPosition = _bmson.sound_channels[chIndex].notes[index + 1].y;
+
             if (_bmson.bpm_events != null)
             {
                 for (int i = 0; i < _bmson.bpm_events.Length; i++)
@@ -119,39 +178,7 @@ namespace BeMSic.Bmson
                 }
             }
 
-            // sampleStartからbpm変化ごとのサンプル数を足し合わせる
-            var sampleEnd = sampleStart;
-            var prevSample = startPosition;
-            var nowBpm = startBpm;
-            foreach (var bpm in bpmChanges)
-            {
-                var length = bpm.y - prevSample;
-                sampleEnd += (long)((double)length * _coef / nowBpm);
-
-                prevSample = bpm.y;
-                nowBpm = bpm.bpm;
-            }
-
-            var lastLength = endPosition - prevSample;
-            sampleEnd += (long)((double)lastLength * _coef / nowBpm);
-
-            return sampleEnd;
-        }
-
-        /// <summary>
-        /// 保存するWAVファイル名を作成する
-        /// </summary>
-        /// <param name="saveDirectory">保存先ディレクトリ</param>
-        /// <param name="fileName">ファイル名</param>
-        /// <param name="start">サンプル開始位置</param>
-        /// <param name="end">サンプル終了位置</param>
-        /// <returns>保存wavファイルパス</returns>
-        private string GetSaveFilePath(string saveDirectory, string fileName, long start, long end)
-        {
-            return Path.ChangeExtension(
-                saveDirectory + "\\" +
-                Path.GetFileNameWithoutExtension(fileName) + $"_{start}_{end}",
-                ".wav");
+            return (bpmChanges, startBpm);
         }
     }
 }

@@ -84,7 +84,7 @@ namespace WavCutterBmsonToBmsDemo
         /// <param name="e"></param>
         private void OutputAllButton_Click(object sender, RoutedEventArgs e)
         {
-            for(int i = 0; i < _bmson!.Bmson!.sound_channels.Length; i++)
+            for (int i = 0; i < _bmson!.Bmson!.sound_channels.Length; i++)
             {
                 WriteWavs(i);
             }

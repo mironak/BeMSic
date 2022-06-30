@@ -47,10 +47,10 @@ namespace BeMSic.Wave.FileOperation
             reader1.Position = 0;
             reader2.Position = 0;
 
-            var sampleChannel1 = new SampleChannel(reader1, false);
-            var sampleChannel2 = new SampleChannel(reader2, false);
-            var readBufferA = new float[reader1.WaveFormat.SampleRate * reader1.WaveFormat.Channels];
-            var readBufferB = new float[reader2.WaveFormat.SampleRate * reader2.WaveFormat.Channels];
+            SampleChannel sampleChannel1 = new (reader1, false);
+            SampleChannel sampleChannel2 = new (reader2, false);
+            float[] readBufferA = new float[reader1.WaveFormat.SampleRate * reader1.WaveFormat.Channels];
+            float[] readBufferB = new float[reader2.WaveFormat.SampleRate * reader2.WaveFormat.Channels];
 
             while (true)
             {
@@ -106,8 +106,8 @@ namespace BeMSic.Wave.FileOperation
         /// <returns>Match Rate</returns>
         private static float CalculateMatchRate(float[] wav1, float[] wav2, int channelNum, ValidComparator comparator)
         {
-            var wav1Ch = new float[wav1.Length / channelNum];
-            var wav2Ch = new float[wav2.Length / channelNum];
+            float[] wav1Ch = new float[wav1.Length / channelNum];
+            float[] wav2Ch = new float[wav2.Length / channelNum];
             float minimumMatchRate = 1.0F;
 
             for (int i = 0; i < channelNum; i++)

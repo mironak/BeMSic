@@ -17,14 +17,14 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <returns>ずらした後の#WAV行</returns>
         internal static string OffsetWavLineDefinition(string line, List<int> wavs, int offset)
         {
-            var lineDefinition = RadixConvert.ZZToInt(line.Substring(4, 2));
+            int lineDefinition = RadixConvert.ZZToInt(line.Substring(4, 2));
 
-            foreach (var replace in wavs)
+            foreach (int replace in wavs)
             {
                 // To go next wav, if it is not replaced.
                 if (replace == lineDefinition)
                 {
-                    return $"#WAV{RadixConvert.IntToZZ(replace + offset)}{line.Substring(6)}";
+                    return $"#WAV{RadixConvert.IntToZZ(replace + offset)}{line[6..]}";
                 }
             }
 
@@ -39,14 +39,14 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <returns>置換後#WAV行</returns>
         internal static string ReplaceWavLineDefinition(string line, List<BmsReplace> replaces)
         {
-            var nowWav = RadixConvert.ZZToInt(line.Substring(4, 2));
-            var replace = replaces.Find(x => x.NowNum == nowWav);
+            int nowWav = RadixConvert.ZZToInt(line.Substring(4, 2));
+            BmsReplace? replace = replaces.Find(x => x.NowNum == nowWav);
             if (replace == null)
             {
                 return line;
             }
 
-            return $"#WAV{RadixConvert.IntToZZ(replace.NewNum)}{line.Substring(6)}";
+            return $"#WAV{RadixConvert.IntToZZ(replace.NewNum)}{line[6..]}";
         }
 
         /// <summary>

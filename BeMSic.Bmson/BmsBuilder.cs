@@ -10,11 +10,11 @@ namespace BeMSic.Bmson
     /// </summary>
     internal class BmsBuilder
     {
-        private List<WavFileUnit> _wavs;      // #WAV
-        private List<double> _exbpms = new List<double>();   // BPM(その他)
-        private BmsonFormat _bmson;
-        private StringBuilder _builder = new StringBuilder();
-        private int _soundIndex;
+        private readonly List<WavFileUnit> _wavs;           // #WAV
+        private readonly int _soundIndex;
+        private readonly BmsonFormat _bmson;
+        private readonly StringBuilder _builder = new　();
+        private List<double> _exbpms = new　();              // 拡張BPM
 
         /// <summary>
         /// コンストラクタ
@@ -25,7 +25,7 @@ namespace BeMSic.Bmson
         {
             if (bmson.sound_channels.Length <= soundIndex)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(soundIndex), "Invalid index");
             }
 
             _bmson = bmson;
@@ -64,30 +64,69 @@ namespace BeMSic.Bmson
         /// <returns>BMSのレーン定義</returns>
         private static string GetBmsLaneNum(int? bmsonLane)
         {
-            switch (bmsonLane)
+            return bmsonLane switch
             {
-                case 1: return "11";  // 1P 1
-                case 2: return "12";  // 1P 2
-                case 3: return "13";  // 1P 3
-                case 4: return "14";  // 1P 4
-                case 5: return "15";  // 1P 5
-                case 6: return "18";  // 1P 6
-                case 7: return "19";  // 1P 7
-                case 8: return "16";  // 1P SC
-                case 9: return "21";  // 2P 1
-                case 10: return "22";  // 2P 2
-                case 11: return "23";  // 2P 3
-                case 12: return "24";  // 2P 4
-                case 13: return "25";  // 2P 5
-                case 14: return "28";  // 2P 6
-                case 15: return "29";  // 2P 7
-                case 16: return "26";  // 2P SC
+                1 => "11", // 1P 1
+                2 => "12", // 1P 2
+                3 => "13", // 1P 3
+                4 => "14", // 1P 4
+                5 => "15", // 1P 5
+                6 => "18", // 1P 6
+                7 => "19", // 1P 7
+                8 => "16", // 1P SC
+                9 => "21", // 2P 1
+                10 => "22", // 2P 2
+                11 => "23", // 2P 3
+                12 => "24", // 2P 4
+                13 => "25", // 2P 5
+                14 => "28", // 2P 6
+                15 => "29", // 2P 7
+                16 => "26", // 2P SC
+                _ => "01", // BGM
+            };
+        }
 
-                case 0:
-                case null:
-                default:
-                    return "01";   // BGM
+        /// <summary>
+        /// #WAV行テキストを生成する
+        /// </summary>
+        /// <param name="num">#WAV番号</param>
+        /// <param name="wavFileName">wavファイル名</param>
+        /// <returns>#WAV行</returns>
+        private static string GetWavLineText(int num, string wavFileName)
+        {
+            return $"#WAV{RadixConvert.IntToZZ(num)} {wavFileName}" + Environment.NewLine;
+        }
+
+        /// <summary>
+        /// #BPM行テキストを生成する
+        /// </summary>
+        /// <param name="num">#WAV番号</param>
+        /// <param name="wavFileName">wavファイル名</param>
+        /// <returns>#BPM行</returns>
+        private static string GetBpmLineText(int num, string wavFileName)
+        {
+            return $"#BPM{RadixConvert.IntToZZ(num)} {wavFileName}" + Environment.NewLine;
+        }
+
+        /// <summary>
+        /// keyの番号のnoteのみを抜き出したリストを作成
+        /// </summary>
+        /// <param name="notes">ノート一覧</param>
+        /// <param name="key">キー</param>
+        /// <returns>keyのノート一覧</returns>
+        private static List<RelativeNote> GetPartialNotes(List<RelativeNote> notes, int key)
+        {
+            List<RelativeNote> ret = new ();
+
+            foreach (RelativeNote note in notes)
+            {
+                if (note.Key == key)
+                {
+                    ret.Add(note);
+                }
             }
+
+            return ret;
         }
 
         /// <summary>
@@ -146,7 +185,7 @@ namespace BeMSic.Bmson
                 return new List<double>();
             }
 
-            HashSet<double> exbpms = new HashSet<double>();
+            HashSet<double> exbpms = new ();
 
             // bpm_eventsを探索し、0-255以外をまとめる(#BPM用)
             for (int i = 0; i < _bmson.bpm_events.Length; i++)
@@ -183,15 +222,15 @@ namespace BeMSic.Bmson
 
             int lineIndex = 0;
             ulong lineHead = 0;
-            foreach (var line in _bmson.lines)
+            foreach (Line line in _bmson.lines)
             {
-                var interval = (line.y - lineHead) / (ulong)_bmson.info.resolution;
+                ulong interval = (line.y - lineHead) / (ulong)_bmson.info.resolution;
                 if (interval == 0)
                 {
                     continue;
                 }
 
-                LineInfo nowLineInfo = new LineInfo { Num = lineIndex, Interval = interval, Head = lineHead };
+                LineInfo nowLineInfo = new () { Num = lineIndex, Interval = interval, Head = lineHead };
 
                 AppendBar(nowLineInfo);
                 AppendNotes(nowLineInfo);
@@ -220,12 +259,12 @@ namespace BeMSic.Bmson
         /// <param name="nowLineInfo">現在の小節線情報</param>
         private void AppendNotes(LineInfo nowLineInfo)
         {
-            List<RelativeNote> notes = new List<RelativeNote>();
+            List<RelativeNote> notes = new ();
 
-            for (int i = 0; i < _bmson.sound_channels[_soundIndex].notes.Count(); i++)
+            for (int i = 0; i < _bmson.sound_channels[_soundIndex].notes.Length; i++)
             {
                 // ノートの小節番号を取得する
-                var noteLine = GetNoteLine(_bmson.sound_channels[_soundIndex].notes[i].y);
+                LineInfo noteLine = GetNoteLine(_bmson.sound_channels[_soundIndex].notes[i].y);
                 if (noteLine.Num != nowLineInfo.Num)
                 {
                     continue;
@@ -260,13 +299,13 @@ namespace BeMSic.Bmson
                 return;
             }
 
-            List<RelativeNote> bpms = new List<RelativeNote>();
-            List<RelativeNote> exbpms = new List<RelativeNote>();
+            List<RelativeNote> bpms = new ();
+            List<RelativeNote> exbpms = new ();
 
-            for (int i = 0; i < _bmson.bpm_events.Count(); i++)
+            for (int i = 0; i < _bmson.bpm_events.Length; i++)
             {
                 // ノートの小節番号を取得する
-                var noteLine = GetNoteLine(_bmson.bpm_events[i].y);
+                LineInfo noteLine = GetNoteLine(_bmson.bpm_events[i].y);
                 if (noteLine.Num != nowLineInfo.Num)
                 {
                     continue;
@@ -316,7 +355,7 @@ namespace BeMSic.Bmson
             // レーンごとに探索し、notesの部分リストを作成する。
             for (int i = 0; i < 17; i++)
             {
-                var parts = GetPartialNotes(notes, i);
+                List<RelativeNote> parts = GetPartialNotes(notes, i);
                 if (parts.Count == 0)
                 {
                     continue;
@@ -347,27 +386,6 @@ namespace BeMSic.Bmson
         }
 
         /// <summary>
-        /// keyの番号のnoteのみを抜き出したリストを作成
-        /// </summary>
-        /// <param name="notes">ノート一覧</param>
-        /// <param name="key">キー</param>
-        /// <returns>keyのノート一覧</returns>
-        private List<RelativeNote> GetPartialNotes(List<RelativeNote> notes, int key)
-        {
-            List<RelativeNote> ret = new List<RelativeNote>();
-
-            foreach (var note in notes)
-            {
-                if (note.Key == key)
-                {
-                    ret.Add(note);
-                }
-            }
-
-            return ret;
-        }
-
-        /// <summary>
         /// ノート
         /// </summary>
         /// <param name="notes">ノート一覧</param>
@@ -383,14 +401,14 @@ namespace BeMSic.Bmson
 
             string ret = string.Empty;
             int noteIndex = 0;
-            var num = (ulong)_bmson.info.resolution * interval / gcd;
+            ulong num = (ulong)_bmson.info.resolution * interval / gcd;
             for (ulong i = 0; i < num; i++)
             {
                 // 各ノートを配置
                 if (noteIndex < notes.Count)
                 {
-                    var note = notes[noteIndex];
-                    var pos = note.Position / gcd;
+                    RelativeNote note = notes[noteIndex];
+                    ulong pos = note.Position / gcd;
 
                     if (pos == i)
                     {
@@ -422,14 +440,14 @@ namespace BeMSic.Bmson
 
             string ret = string.Empty;
             int noteIndex = 0;
-            var num = (ulong)_bmson.info.resolution * interval / gcd;
+            ulong num = (ulong)_bmson.info.resolution * interval / gcd;
             for (ulong i = 0; i < num; i++)
             {
                 // 各ノートを配置
                 if (noteIndex < notes.Count)
                 {
-                    var note = notes[noteIndex];
-                    var pos = note.Position / gcd;
+                    RelativeNote note = notes[noteIndex];
+                    ulong pos = note.Position / gcd;
 
                     if (pos == i)
                     {
@@ -454,7 +472,7 @@ namespace BeMSic.Bmson
         private ulong GetNotesGcd(List<RelativeNote> notes, ulong interval)
         {
             ulong gcd = 0;
-            foreach (var note in notes)
+            foreach (RelativeNote note in notes)
             {
                 // note退避、各note位置(小節開始からの相対位置)の最大公約数を計算。(noteの情報は書き出し時に使う)。
                 gcd = CalcurateEx.Gcd(gcd, note.Position);
@@ -464,36 +482,14 @@ namespace BeMSic.Bmson
         }
 
         /// <summary>
-        /// #WAV行テキストを生成する
-        /// </summary>
-        /// <param name="num">#WAV番号</param>
-        /// <param name="wavFileName">wavファイル名</param>
-        /// <returns>#WAV行</returns>
-        private string GetWavLineText(int num, string wavFileName)
-        {
-            return $"#WAV{RadixConvert.IntToZZ(num)} {wavFileName}" + Environment.NewLine;
-        }
-
-        /// <summary>
-        /// #BPM行テキストを生成する
-        /// </summary>
-        /// <param name="num">#WAV番号</param>
-        /// <param name="wavFileName">wavファイル名</param>
-        /// <returns>#BPM行</returns>
-        private string GetBpmLineText(int num, string wavFileName)
-        {
-            return $"#BPM{RadixConvert.IntToZZ(num)} {wavFileName}" + Environment.NewLine;
-        }
-
-        /// <summary>
         /// ノートのある小節を取得
         /// </summary>
         /// <param name="notePosition">ノート位置</param>
         /// <returns>小節情報</returns>
         private LineInfo GetNoteLine(ulong notePosition)
         {
-            LineInfo lineInfo = new LineInfo();
-            for (int i = 1; i < _bmson.lines!.Count(); i++)
+            LineInfo lineInfo = new ();
+            for (int i = 1; i < _bmson.lines!.Length; i++)
             {
                 if (notePosition < _bmson.lines![i].y)
                 {

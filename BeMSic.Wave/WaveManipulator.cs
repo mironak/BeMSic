@@ -7,7 +7,7 @@ namespace BeMSic.Wave
     /// </summary>
     public class WaveManipulator
     {
-        private WaveFileReader _wfr;
+        private readonly WaveFileReader _wfr;
 
         /// <summary>
         /// コンストラクタ

@@ -43,7 +43,7 @@ namespace BmsMerger
                 File.WriteAllText(OutputFileTextBox.Text, _bms1Converter.Bms);
                 MessageBox.Show("Completed.");
             }
-            catch(ArgumentOutOfRangeException)
+            catch (ArgumentOutOfRangeException)
             {
                 MessageBox.Show("The #WAV definition is out of range.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -62,7 +62,7 @@ namespace BmsMerger
                 return;
             }
             File1BrowseTextBox.Text = openDialog1.FileName;
-            if(OutputFileTextBox.Text == "")
+            if (OutputFileTextBox.Text == "")
             {
                 OutputFileTextBox.Text = Path.GetDirectoryName(File1BrowseTextBox.Text) + "\\" + _outputFileName;
                 OutputFileCautionLabel.Content = GetOutputFileCautionText(OutputFileTextBox.Text);

@@ -26,7 +26,7 @@ namespace BeMSic.Wave
         {
             progress.Report(0);
 
-            List<WavFileUnit> replacedFiles = new List<WavFileUnit>(originalFiles);
+            List<WavFileUnit> replacedFiles = new (originalFiles);
             WaveStream[] readers = PreserveWavFileReader(originalFiles);
 
             // Compare wavs
@@ -62,8 +62,8 @@ namespace BeMSic.Wave
         /// <returns>置換テーブル</returns>
         public static List<BmsReplace> GetWavReplaces(List<WavFileUnit> originalFiles, IProgress<int> progress, float r2val)
         {
-            List<BmsReplace> replaces = new List<BmsReplace>();
-            var replaced = GetReplacedTable(originalFiles, progress, r2val, WaveValidation.CalculateRSquared);
+            List<BmsReplace> replaces = new ();
+            List<WavFileUnit> replaced = GetReplacedTable(originalFiles, progress, r2val, WaveValidation.CalculateRSquared);
 
             for (int i = 0; i < originalFiles.Count; i++)
             {
@@ -122,7 +122,7 @@ namespace BeMSic.Wave
             WaveStream[] readers = new WaveStream[wavFileUnits.Count];
             for (int i = 0; i < wavFileUnits.Count; i++)
             {
-                var reader = WaveIO.GetWaveStream(wavFileUnits[i].Name);
+                WaveStream? reader = WaveIO.GetWaveStream(wavFileUnits[i].Name);
                 if (reader != null)
                 {
                     readers[i] = reader;

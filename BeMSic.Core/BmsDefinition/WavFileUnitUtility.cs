@@ -18,7 +18,7 @@ namespace BeMSic.Core.BmsDefinition
         {
             if (!IsInRange(start, end))
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(start) + "and" + nameof(end), "Not in range");
             }
 
             return GetPartialWavsCore(files, start, end);
@@ -59,8 +59,8 @@ namespace BeMSic.Core.BmsDefinition
         /// <returns>#WAV定義一覧(startからendまで)</returns>
         private static List<WavFileUnit> GetPartialWavsCore(List<WavFileUnit> fileList, int start, int end)
         {
-            List<WavFileUnit> partialWavs = new List<WavFileUnit>();
-            foreach (var wav in fileList)
+            List<WavFileUnit> partialWavs = new ();
+            foreach (WavFileUnit wav in fileList)
             {
                 if (wav.Num < start)
                 {

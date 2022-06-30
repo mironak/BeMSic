@@ -38,32 +38,30 @@ namespace BeMSic.Wave.FileOperation
         /// <param name="endPos">終了サンプル</param>
         internal static void TrimWavFile(string wavFilePath, WaveStream reader, long startPos, long endPos)
         {
-            using (var writeSr = new WaveFileWriter(
+            using WaveFileWriter writeSr = new (
                 wavFilePath,
                 new WaveFormat(
                     reader.WaveFormat.SampleRate,
                     reader.WaveFormat.BitsPerSample,
-                    reader.WaveFormat.Channels)))
+                    reader.WaveFormat.Channels));
+            reader.Position = startPos;
+            byte[] buffer = new byte[reader.WaveFormat.SampleRate * reader.WaveFormat.Channels];
+
+            while (true)
             {
-                reader.Position = startPos;
-                var buffer = new byte[reader.WaveFormat.SampleRate * reader.WaveFormat.Channels];
-
-                while (true)
+                int bytesRequired = (int)(endPos - reader.Position);
+                int bytesToRead = Math.Min(bytesRequired, buffer.Length);
+                int bytesRead = reader.Read(buffer, 0, (((bytesToRead - 1) / 4) + 1) * 4);
+                if (bytesRead <= 0)
                 {
-                    int bytesRequired = (int)(endPos - reader.Position);
-                    int bytesToRead = Math.Min(bytesRequired, buffer.Length);
-                    int bytesRead = reader.Read(buffer, 0, (((bytesToRead - 1) / 4) + 1) * 4);
-                    if (bytesRead <= 0)
-                    {
-                        // End data
-                        break;
-                    }
+                    // End data
+                    break;
+                }
 
-                    writeSr.Write(buffer, 0, bytesRead);
-                    if (endPos <= reader.Position)
-                    {
-                        break;
-                    }
+                writeSr.Write(buffer, 0, bytesRead);
+                if (endPos <= reader.Position)
+                {
+                    break;
                 }
             }
         }

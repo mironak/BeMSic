@@ -19,7 +19,7 @@ namespace BeMSic.BmsFileOperator
         {
             string writeData = string.Empty;
 
-            using (StringReader sr = new StringReader(bms))
+            using (StringReader sr = new (bms))
             {
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
@@ -40,10 +40,10 @@ namespace BeMSic.BmsFileOperator
         /// <returns>置換後BMSテキスト</returns>
         public static string GetOffsetedBmsFile(string bms, int offset)
         {
-            var wavs = GetWavIndexes(bms);
+            List<int> wavs = GetWavIndexes(bms);
             string writeData = string.Empty;
 
-            using (StringReader sr = new StringReader(bms))
+            using (StringReader sr = new (bms))
             {
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
@@ -67,13 +67,13 @@ namespace BeMSic.BmsFileOperator
             string? readLine;
             List<int> wavs = GetUsedWavList(bms);
 
-            using (StringReader sr = new StringReader(bms))
+            using (StringReader sr = new (bms))
             {
                 while ((readLine = sr.ReadLine()) != null)
                 {
                     if (BmsCommandSearch.GetLineCommand(readLine) == BmsCommandSearch.BmsCommand.WAV)
                     {
-                        var index = wavs.IndexOf(RadixConvert.ZZToInt(readLine.Substring(4, 2)));
+                        int index = wavs.IndexOf(RadixConvert.ZZToInt(readLine.Substring(4, 2)));
                         if (index == -1)
                         {
                             continue;
@@ -94,7 +94,7 @@ namespace BeMSic.BmsFileOperator
         /// <returns>置換後BMSテキスト</returns>
         public static string GetWavArrangedBmsFile(string bms)
         {
-            var uniqueList = GetUsedWavList(bms).Distinct().OrderBy(i => i).ToList();
+            List<int> uniqueList = GetUsedWavList(bms).Distinct().OrderBy(i => i).ToList();
 
             return GetReplacedArrangedData(bms, uniqueList);
         }
@@ -106,9 +106,9 @@ namespace BeMSic.BmsFileOperator
         /// <returns>#WAV番号一覧</returns>
         public static List<int> GetUsedWavList(string bms)
         {
-            List<int> wavs = new List<int>();
+            List<int> wavs = new ();
 
-            using (StringReader sr = new StringReader(bms))
+            using (StringReader sr = new (bms))
             {
                 // Get list
                 string? readLine;
@@ -129,20 +129,20 @@ namespace BeMSic.BmsFileOperator
         /// <returns>合体後BMS</returns>
         public static string GetMargedBms(string bms1, string bms2)
         {
-            var bms1WavMax = GetUsedWavList(bms1).Max();
-            var bms2WavMax = GetUsedWavList(bms2).Max();
+            int bms1WavMax = GetUsedWavList(bms1).Max();
+            int bms2WavMax = GetUsedWavList(bms2).Max();
 
             // 定義数ZZ確認
             if (bms1WavMax + bms2WavMax > 1295)
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(bms1) + nameof(bms2), "Definition over");
             }
 
             int max = 0;
             string writeBmsData = string.Empty;
-            var bmsOffsetted = new BmsConverter(bms2).Offset(bms1WavMax).Bms;
+            string bmsOffsetted = new BmsConverter(bms2).Offset(bms1WavMax).Bms;
 
-            using (StringReader sr = new StringReader(bms1))
+            using (StringReader sr = new (bms1))
             {
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
@@ -156,7 +156,7 @@ namespace BeMSic.BmsFileOperator
                             break;
 
                         case BmsCommandSearch.BmsCommand.MAIN:
-                            var now = GetLineNumber(readLine);
+                            int now = GetLineNumber(readLine);
 
                             // 最終小節番号を保持
                             if (max < now)
@@ -188,7 +188,7 @@ namespace BeMSic.BmsFileOperator
             string writeData = string.Empty;
             string? readLine;
 
-            using (StringReader sr = new StringReader(bms))
+            using (StringReader sr = new (bms))
             {
                 while ((readLine = sr.ReadLine()) != null)
                 {
@@ -209,7 +209,7 @@ namespace BeMSic.BmsFileOperator
 
             // #WAV最終番号の後ろに追加する
             string writeData = string.Empty;
-            using (StringReader sr = new StringReader(bms2))
+            using (StringReader sr = new (bms2))
             {
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
@@ -232,8 +232,7 @@ namespace BeMSic.BmsFileOperator
         // MAIN行の小節番号を取得する
         private static int GetLineNumber(string line)
         {
-            int now;
-            var success = int.TryParse(line.Substring(1, 3), out now);
+            bool success = int.TryParse(line.AsSpan(1, 3), out int now);
             if (!success)
             {
                 return 0;
@@ -248,7 +247,7 @@ namespace BeMSic.BmsFileOperator
             string writeData = string.Empty;
             bool isMainLine = false;
 
-            using (StringReader sr = new StringReader(bms2))
+            using (StringReader sr = new (bms2))
             {
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
@@ -282,10 +281,10 @@ namespace BeMSic.BmsFileOperator
         /// <returns>#WAV番号一覧</returns>
         private static List<int> GetWavIndexes(string bms)
         {
-            var wavs = FileList.GetWavsRelativePath(bms);
+            List<WavFileUnit> wavs = FileList.GetWavsRelativePath(bms);
 
-            List<int> wavFiles = new List<int>();
-            foreach (var wav in wavs)
+            List<int> wavFiles = new ();
+            foreach (WavFileUnit wav in wavs)
             {
                 wavFiles.Add(wav.Num);
             }

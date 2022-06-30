@@ -2,6 +2,9 @@
 
 namespace BeMSic.BmsFileOperator.LineOperation
 {
+    /// <summary>
+    /// BMSコマンド検索
+    /// </summary>
     internal static class BmsCommandSearch
     {
         /// <summary>
@@ -57,7 +60,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <returns>lineが#WAV行ならtrue</returns>
         internal static bool IsWavLine(string line)
         {
-            Regex rgxWav = new Regex(@"^#WAV", RegexOptions.IgnoreCase);
+            Regex rgxWav = new (@"^#WAV", RegexOptions.IgnoreCase);
             if (rgxWav.Match(line).Success)
             {
                 return true;
@@ -73,7 +76,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <returns>lineがMAIN行ならtrue</returns>
         internal static bool IsMainLine(string line)
         {
-            Regex rgxMain = new Regex(@"^#[0-9][0-9][0-9]", RegexOptions.IgnoreCase);
+            Regex rgxMain = new (@"^#[0-9][0-9][0-9]", RegexOptions.IgnoreCase);
             if (rgxMain.Match(line).Success)
             {
                 // BGM lane
@@ -96,10 +99,10 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// lineがMAIN行(BGMか譜面レーン以外)ならtrueを返す
         /// </summary>
         /// <param name="line">.bms file text line</param>
-        /// <returns></returns>
+        /// <returns>lineがMAIN行(BGMか譜面レーン以外)ならtrue</returns>
         internal static bool IsMainNotObj(string line)
         {
-            Regex rgxMain = new Regex(@"^#[0-9][0-9][0-9]", RegexOptions.IgnoreCase);
+            Regex rgxMain = new (@"^#[0-9][0-9][0-9]", RegexOptions.IgnoreCase);
             if (rgxMain.Match(line).Success)
             {
                 // BGM lane

@@ -58,7 +58,7 @@ namespace BeMSic.BmsFileOperator
         /// <returns>詰めた後のBMSテキスト行</returns>
         public static string GetArrangedLine(string line, List<int> nowWavs)
         {
-            List<BmsReplace> replaceList = new List<BmsReplace>();
+            List<BmsReplace> replaceList = new ();
             for (int i = 0; i < nowWavs.Count; i++)
             {
                 replaceList.Add(new BmsReplace(nowWavs[i], i));
