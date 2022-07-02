@@ -85,9 +85,8 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <returns>#MAIN行(#WAVずらし後)</returns>
         internal static string OffsetMainLineDefinition(string line, List<int> wavs, int offset)
         {
-            string retLine = line;
-            MainLineDef mainLine = new (retLine);
-            string dest = retLine[..MainLineDef.DataStart];
+            MainLineDef mainLine = new (line);
+            string dest = line[..MainLineDef.DataStart];
 
             while (mainLine.HasNext())
             {
@@ -105,7 +104,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
                 dest += writeVal;
             }
 
-            return retLine;
+            return dest;
         }
 
         /// <summary>

@@ -5,12 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BmsDefinitionReductor"
         mc:Ignorable="d"
-        Title="BMS Definition Reductor" Height="450" Width="400">
+        Title="BMS Definition Reductor" Height="450" Width="450">
     <Grid>
         <Button x:Name="LoadBmsButton" Content="BMSファイルの読み込み" HorizontalAlignment="Left" Margin="22,10,0,0" VerticalAlignment="Top" Width="182" Click="LoadBms_Button_Click"/>
-        <Button x:Name="DefinitionReductButton" Content="開始" HorizontalAlignment="Left" Margin="266,10,0,0" VerticalAlignment="Top" Width="106" Click="DefinitionReuseButton_Click" IsEnabled="False"/>
+        <Button x:Name="DefinitionReductButton" Content="開始" Margin="0,10,28,0" VerticalAlignment="Top" Click="DefinitionReuseButton_Click" IsEnabled="False" HorizontalAlignment="Right" Width="106"/>
 
-        <TextBox x:Name="R2TextBox" Text="0.6" HorizontalAlignment="Left" Height="22" Margin="190,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30"/>
+        <TextBox x:Name="R2TextBox" Text="0.9" HorizontalAlignment="Left" Height="22" Margin="190,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30"/>
         <Label Content="同一とみなす相関係数(0-1):" HorizontalAlignment="Left" Margin="22,35,0,0" VerticalAlignment="Top"/>
         <Label Content="以上" HorizontalAlignment="Left" Margin="230,35,0,0" VerticalAlignment="Top" Width="39"/>
 
@@ -30,6 +30,7 @@
 
         <Label x:Name="StatusLabel" Content="BMSファイルを読み込んでください。" HorizontalAlignment="Left" Margin="22,0,0,43" Width="350" Height="26" VerticalAlignment="Bottom"/>
         <ProgressBar x:Name="DefinitionReductProgressBar" Minimum="0" Maximum="100" Margin="22,0,28,25" Height="18" VerticalAlignment="Bottom"/>
+        <CheckBox x:Name="LengthMatchCheckBox" Content="同じ長さのみの比較" Margin="307,42,0,0" VerticalAlignment="Top" IsChecked="True" HorizontalAlignment="Left" Width="115"/>
 
 
 

@@ -21,4 +21,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BeMSic.BmsFileOperator\BeMSic.BmsFileOperator.csproj" />
+    <ProjectReference Include="..\BeMSic.Bmson\BeMSic.Bmson.csproj" />
+    <ProjectReference Include="..\BeMSic.Core\BeMSic.Core.csproj" />
+    <ProjectReference Include="..\BeMSic.Wave\BeMSic.Wave.csproj" />
+    <ProjectReference Include="..\BeMSic\BeMSic.csproj" />
+  </ItemGroup>
+
 </Project>

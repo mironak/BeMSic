@@ -60,8 +60,10 @@ namespace BmsDefinitionReductor
         /// <param name="e"></param>
         private void LoadBms_Button_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "BMSファイル (*.*)|*.*";
+            var dialog = new OpenFileDialog
+            {
+                Filter = "BMSファイル (*.*)|*.*"
+            };
 
             try
             {
@@ -119,9 +121,12 @@ namespace BmsDefinitionReductor
         private async void DefinitionReuseButton_Click(object sender, RoutedEventArgs e)
         {
             // ダイアログ表示
-            var dialog = new SaveFileDialog();
-            dialog.Filter = "出力BMSファイル(*.bms)|*.bms|全てのファイル(*.*)|*.*";
-            dialog.FileName = OutputFileName;
+            var dialog = new SaveFileDialog
+            {
+                Filter = "出力BMSファイル(*.bms)|*.bms|全てのファイル(*.*)|*.*",
+                FileName = OutputFileName
+            };
+
             if (dialog.ShowDialog() == false)
             {
                 return;
@@ -143,12 +148,18 @@ namespace BmsDefinitionReductor
             StateViewBusy(true);
             int start = RadixConvert.ZZToInt(Definition_Start.Text);
             int end = RadixConvert.ZZToInt(Definition_End.Text);
+            bool lengthMatchIsChecked = false;
+            if (LengthMatchCheckBox.IsChecked != null)
+            {
+                lengthMatchIsChecked = (bool)LengthMatchCheckBox.IsChecked;
+            }
+
             try
             {
                 await Task.Run(() =>
                 {
                     var partialFiles = WavFileUnitUtility.GetPartialWavs(_files!, start, end);
-                    var replaces = DefinitionReductor.GetWavReplaces(partialFiles, _progress, r2Val);
+                    var replaces = DefinitionReductor.GetWavReplaces(partialFiles, _progress, lengthMatchIsChecked, r2Val);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();
                     File.WriteAllText(dialog.FileName, _bmsConverter.Bms);
