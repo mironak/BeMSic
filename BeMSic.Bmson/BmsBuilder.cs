@@ -15,6 +15,7 @@ namespace BeMSic.Bmson
         private readonly BmsonFormat _bmson;
         private readonly StringBuilder _builder = new　();
         private List<double> _exbpms = new　();              // 拡張BPM
+        private bool _isBgmOnly;
 
         /// <summary>
         /// コンストラクタ
@@ -45,9 +46,12 @@ namespace BeMSic.Bmson
         /// <summary>
         /// BMSテキストを生成する
         /// </summary>
+        /// <param name="isBgmOnly">BGMレーンのみに並べる</param>
         /// <returns>BMSテキスト</returns>
-        internal string Generate()
+        internal string Generate(bool isBgmOnly)
         {
+            _isBgmOnly = isBgmOnly;
+
             SetBmsHeaderField();
             SetWavField();
             SetBpmField();
@@ -305,7 +309,26 @@ namespace BeMSic.Bmson
             if (notes.Count > 0)
             {
                 // 前のノートから小節が変わった場合、noteの位置を計算し、割り当てる。
-                SetLinesNotes(nowLineInfo, notes);
+
+                // レーンごとに探索し、notesの部分リストを作成する。
+                if (!_isBgmOnly)
+                {
+                    for (int i = 0; i < 17; i++)
+                    {
+                        List<RelativeNote> parts = GetPartialNotes(notes, i);
+                        if (parts.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        SetLinesNotes(nowLineInfo, parts, i);
+                    }
+                }
+                else
+                {
+                    SetLinesNotes(nowLineInfo, notes, 0);
+                }
+
                 _builder.AppendLine(string.Empty);
             }
         }
@@ -372,19 +395,9 @@ namespace BeMSic.Bmson
         /// </summary>
         /// <param name="nowLineInfo">現在の小節線情報</param>
         /// <param name="notes">ノート一覧</param>
-        private void SetLinesNotes(LineInfo nowLineInfo, List<RelativeNote> notes)
+        private void SetLinesNotes(LineInfo nowLineInfo, List<RelativeNote> notes, int laneIndex)
         {
-            // レーンごとに探索し、notesの部分リストを作成する。
-            for (int i = 0; i < 17; i++)
-            {
-                List<RelativeNote> parts = GetPartialNotes(notes, i);
-                if (parts.Count == 0)
-                {
-                    continue;
-                }
-
-                _builder.AppendLine($"#{nowLineInfo.Num.ToString("D3")}{GetBmsLaneNum(i)}:{SetLineNotes(parts, nowLineInfo.Interval)}");
-            }
+            _builder.AppendLine($"#{nowLineInfo.Num.ToString("D3")}{GetBmsLaneNum(laneIndex)}:{SetLineNotes(notes, nowLineInfo.Interval)}");
         }
 
         /// <summary>

@@ -47,7 +47,7 @@ namespace BeMSic.Bmson
         /// <param name="readWavFilePath">切断対象WAVファイルパス</param>
         /// <param name="chIndex">切断対象WAVインデックス</param>
         /// <returns>BMSテキスト</returns>
-        public string CutWav(string saveDirectory, string readWavFilePath, int chIndex)
+        public string CutWav(string saveDirectory, string readWavFilePath, int chIndex, bool isBgmOnly)
         {
             Wave.WaveManipulator waveIO = new (readWavFilePath);
 
@@ -80,7 +80,7 @@ namespace BeMSic.Bmson
                 }
             }
 
-            return bmsBuilder.Generate();
+            return bmsBuilder.Generate(isBgmOnly);
         }
 
         /// <summary>

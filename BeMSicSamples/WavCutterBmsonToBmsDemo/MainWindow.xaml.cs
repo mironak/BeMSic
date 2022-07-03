@@ -38,8 +38,10 @@ namespace WavCutterBmsonToBmsDemo
         /// <param name="e"></param>
         private void FileOpenButton_Click(object sender, RoutedEventArgs e)
         {
-            var dialog = new OpenFileDialog();
-            dialog.Filter = "BMSONファイル (*.*)|*.*";
+            var dialog = new OpenFileDialog
+            {
+                Filter = "BMSONファイル (*.*)|*.*"
+            };
 
             try
             {
@@ -120,7 +122,14 @@ namespace WavCutterBmsonToBmsDemo
             // wavを切断し、保存する
             string saveDirectory = GetOutputBmsDirectoryName(_bmson.Bmson.sound_channels[chIndex].name);
             Directory.CreateDirectory(saveDirectory);
-            var bmsText = _bmson.CutWav(saveDirectory, readWavFilePath, chIndex);
+
+            bool bgmOnlyIsChecked = false;
+            if(BgmLaneOnlyCheckBox.IsChecked != null)
+            {
+                bgmOnlyIsChecked = (bool)BgmLaneOnlyCheckBox.IsChecked;
+            }
+
+            var bmsText = _bmson.CutWav(saveDirectory, readWavFilePath, chIndex, bgmOnlyIsChecked);
             File.WriteAllText(saveDirectory + "\\" + "out.bms", bmsText);
         }
 
