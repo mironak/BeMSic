@@ -61,7 +61,7 @@ namespace BeMSic.BmsFileOperator
             List<BmsReplace> replaceList = new ();
             for (int i = 0; i < nowWavs.Count; i++)
             {
-                replaceList.Add(new BmsReplace(nowWavs[i], i));
+                replaceList.Add(new BmsReplace(nowWavs[i], i + 1));
             }
 
             switch (BmsCommandSearch.GetLineCommand(line))

@@ -37,6 +37,13 @@ namespace BeMSic.BmsFileOperator.LineOperation
             while (mainLine.HasNext())
             {
                 int writeVal = RadixConvert.ZZToInt(mainLine.Next());
+
+                // 00は無視
+                if (writeVal == 0)
+                {
+                    continue;
+                }
+
                 if (!result.Contains(writeVal))
                 {
                     result.Add(writeVal);
