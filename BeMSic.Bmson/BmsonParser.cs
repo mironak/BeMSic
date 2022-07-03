@@ -46,6 +46,7 @@ namespace BeMSic.Bmson
         /// <param name="saveDirectory">保存先ディレクトリ</param>
         /// <param name="readWavFilePath">切断対象WAVファイルパス</param>
         /// <param name="chIndex">切断対象WAVインデックス</param>
+        /// <param name="isBgmOnly">BGMレーンのみに配置するならtrue</param>
         /// <returns>BMSテキスト</returns>
         public string CutWav(string saveDirectory, string readWavFilePath, int chIndex, bool isBgmOnly)
         {

@@ -14,8 +14,9 @@ namespace BeMSic.Bmson
         private readonly int _soundIndex;
         private readonly BmsonFormat _bmson;
         private readonly StringBuilder _builder = new　();
-        private List<double> _exbpms = new　();              // 拡張BPM
+        private List<double> _exbpms = new ();              // 拡張BPM
         private bool _isBgmOnly;
+        private List<int> _notesWavIndices = new List<int>();
 
         /// <summary>
         /// コンストラクタ
@@ -66,26 +67,26 @@ namespace BeMSic.Bmson
         /// </summary>
         /// <param name="bmsonLane">BMSONのレーン定義</param>
         /// <returns>BMSのレーン定義</returns>
-        private static string GetBmsLaneNum(int? bmsonLane)
+        private static string GetBmsLaneNum(int? bmsonLane, bool isLongnote)
         {
             return bmsonLane switch
             {
-                1 => "11", // 1P 1
-                2 => "12", // 1P 2
-                3 => "13", // 1P 3
-                4 => "14", // 1P 4
-                5 => "15", // 1P 5
-                6 => "18", // 1P 6
-                7 => "19", // 1P 7
-                8 => "16", // 1P SC
-                9 => "21", // 2P 1
-                10 => "22", // 2P 2
-                11 => "23", // 2P 3
-                12 => "24", // 2P 4
-                13 => "25", // 2P 5
-                14 => "28", // 2P 6
-                15 => "29", // 2P 7
-                16 => "26", // 2P SC
+                1 => isLongnote ? "51" : "11", // 1P 1
+                2 => isLongnote ? "52" : "12", // 1P 2
+                3 => isLongnote ? "53" : "13", // 1P 3
+                4 => isLongnote ? "54" : "14", // 1P 4
+                5 => isLongnote ? "55" : "15", // 1P 5
+                6 => isLongnote ? "58" : "18", // 1P 6
+                7 => isLongnote ? "59" : "19", // 1P 7
+                8 => isLongnote ? "56" : "16", // 1P SC
+                9 => isLongnote ? "61" : "21", // 2P 1
+                10 => isLongnote ? "62" : "22", // 2P 2
+                11 => isLongnote ? "63" : "23", // 2P 3
+                12 => isLongnote ? "64" : "24", // 2P 4
+                13 => isLongnote ? "65" : "25", // 2P 5
+                14 => isLongnote ? "68" : "28", // 2P 6
+                15 => isLongnote ? "69" : "29", // 2P 7
+                16 => isLongnote ? "66" : "26", // 2P SC
                 _ => "01", // BGM
             };
         }
@@ -124,13 +125,44 @@ namespace BeMSic.Bmson
 
             foreach (RelativeNote note in notes)
             {
-                if (note.Key == key)
+                if (note.Note.x == key)
                 {
                     ret.Add(note);
                 }
             }
 
             return ret;
+        }
+
+        /// <summary>
+        /// keyの番号のnoteのみを抜き出したリストを作成(ロングノートなし, ロングノートあり)
+        /// </summary>
+        /// <param name="notes">ノート一覧</param>
+        /// <param name="key">キー</param>
+        /// <returns>keyのノート一覧(ロングノートなし, ロングノートあり)</returns>
+        private static (List<RelativeNote>, List<RelativeNote>) GetPartialNotesLongNote(List<RelativeNote> notes, int key)
+        {
+            List<RelativeNote> noLn = new ();
+            List<RelativeNote> ln = new ();
+
+            foreach (RelativeNote note in notes)
+            {
+                if (note.Note.x != key)
+                {
+                    continue;
+                }
+
+                if (note.Note.l == 0)
+                {
+                    noLn.Add(note);
+                }
+                else
+                {
+                    ln.Add(note);
+                }
+            }
+
+            return (noLn, ln);
         }
 
         /// <summary>
@@ -246,6 +278,9 @@ namespace BeMSic.Bmson
                 return;
             }
 
+            // ロングノートを配置する場合、終端ノートをここで配置しておく
+            SetLongNotesLast();
+
             int lineIndex = 0;
             ulong lineHead = 0;
             foreach (Line line in _bmson.lines)
@@ -265,6 +300,33 @@ namespace BeMSic.Bmson
                 lineHead = line.y;
                 lineIndex++;
             }
+        }
+
+        /// <summary>
+        /// ロングノート(LNTYPE 1)の終端ノートを作成する。
+        /// </summary>
+        private void SetLongNotesLast()
+        {
+            _notesWavIndices.Clear();
+
+            int wavIndex = 1;
+            List<Note> notes = new List<Note>();
+
+            foreach (var note in _bmson.sound_channels[_soundIndex].notes)
+            {
+                notes.Add(note);
+                _notesWavIndices.Add(wavIndex);
+
+                if (note.l > 0)
+                {
+                    notes.Add(new Note { c = true, l = note.l, x = note.x, y = note.y + note.l });
+                    _notesWavIndices.Add(wavIndex);
+                }
+
+                wavIndex++;
+            }
+
+            _bmson.sound_channels[_soundIndex].notes = notes.ToArray();
         }
 
         /// <summary>
@@ -300,8 +362,8 @@ namespace BeMSic.Bmson
                 notes.Add(new RelativeNote
                 {
                     Position = _bmson.sound_channels[_soundIndex].notes[i].y - noteLine.Head,
-                    Wav = i + 1,
-                    Key = _bmson.sound_channels[_soundIndex].notes[i].x,
+                    Wav = _notesWavIndices[i],
+                    Note = _bmson.sound_channels[_soundIndex].notes[i],
                 });
             }
 
@@ -309,26 +371,8 @@ namespace BeMSic.Bmson
             if (notes.Count > 0)
             {
                 // 前のノートから小節が変わった場合、noteの位置を計算し、割り当てる。
-
-                // レーンごとに探索し、notesの部分リストを作成する。
-                if (!_isBgmOnly)
-                {
-                    for (int i = 0; i < 17; i++)
-                    {
-                        List<RelativeNote> parts = GetPartialNotes(notes, i);
-                        if (parts.Count == 0)
-                        {
-                            continue;
-                        }
-
-                        SetLinesNotes(nowLineInfo, parts, i);
-                    }
-                }
-                else
-                {
-                    SetLinesNotes(nowLineInfo, notes, 0);
-                }
-
+               // SetLinesNotes(nowLineInfo, notes);
+                SetLinesNotesLongnotes(nowLineInfo, notes);
                 _builder.AppendLine(string.Empty);
             }
         }
@@ -362,7 +406,7 @@ namespace BeMSic.Bmson
                     {
                         Position = _bmson.bpm_events[i].y - noteLine.Head,
                         Wav = _exbpms.IndexOf(_bmson.bpm_events[i].bpm) + 1,
-                        Key = 0,
+                        Note = new Note(),
                     });
                 }
                 else
@@ -371,7 +415,7 @@ namespace BeMSic.Bmson
                     {
                         Position = _bmson.bpm_events[i].y - noteLine.Head,
                         Wav = (byte)_bmson.bpm_events[i].bpm,
-                        Key = 0,
+                        Note = new Note(),
                     });
                 }
             }
@@ -395,9 +439,66 @@ namespace BeMSic.Bmson
         /// </summary>
         /// <param name="nowLineInfo">現在の小節線情報</param>
         /// <param name="notes">ノート一覧</param>
-        private void SetLinesNotes(LineInfo nowLineInfo, List<RelativeNote> notes, int laneIndex)
+        private void SetLinesNotes(LineInfo nowLineInfo, List<RelativeNote> notes)
         {
-            _builder.AppendLine($"#{nowLineInfo.Num.ToString("D3")}{GetBmsLaneNum(laneIndex)}:{SetLineNotes(notes, nowLineInfo.Interval)}");
+            if (!_isBgmOnly)
+            {
+                // レーンごとに探索し、notesの部分リストを作成する。
+                for (int i = 0; i < 17; i++)
+                {
+                    List<RelativeNote> parts = GetPartialNotes(notes, i);
+                    if (parts.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    SetLinesNote(nowLineInfo, parts, GetBmsLaneNum(i, false));
+                }
+            }
+            else
+            {
+                SetLinesNote(nowLineInfo, notes, GetBmsLaneNum(0, false));
+            }
+        }
+
+        /// <summary>
+        /// note行
+        /// </summary>
+        /// <param name="nowLineInfo">現在の小節線情報</param>
+        /// <param name="notes">ノート一覧</param>
+        private void SetLinesNotesLongnotes(LineInfo nowLineInfo, List<RelativeNote> notes)
+        {
+            if (!_isBgmOnly)
+            {
+                // レーンごとに探索し、notesの部分リストを作成する。
+                for (int i = 0; i < 17; i++)
+                {
+                    (var noLns, var lns) = GetPartialNotesLongNote(notes, i);
+                    if (noLns.Count > 0)
+                    {
+                        SetLinesNote(nowLineInfo, noLns, GetBmsLaneNum(i, false));
+                    }
+
+                    if (lns.Count > 0)
+                    {
+                        SetLinesNote(nowLineInfo, lns, GetBmsLaneNum(i, true));
+                    }
+                }
+            }
+            else
+            {
+                SetLinesNote(nowLineInfo, notes, GetBmsLaneNum(0, false));
+            }
+        }
+
+        /// <summary>
+        /// note行1行
+        /// </summary>
+        /// <param name="nowLineInfo">現在の小節線情報</param>
+        /// <param name="notes">ノート一覧</param>
+        private void SetLinesNote(LineInfo nowLineInfo, List<RelativeNote> notes, string lane)
+        {
+            _builder.AppendLine($"#{nowLineInfo.Num.ToString("D3")}{lane}:{SetLineNotes(notes, nowLineInfo.Interval)}");
         }
 
         /// <summary>
@@ -577,7 +678,7 @@ namespace BeMSic.Bmson
             /// <summary>
             /// 鍵盤番号
             /// </summary>
-            public int Key { get; set; }
+            public Note Note { get; set; }
         }
     }
 }

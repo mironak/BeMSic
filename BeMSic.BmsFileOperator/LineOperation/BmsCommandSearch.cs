@@ -86,7 +86,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
                 }
 
                 // Pettern lane
-                if ((line[4] == '1') || (line[4] == '2'))
+                if ((line[4] == '1') || (line[4] == '2') || (line[4] == '5') || (line[4] == '6'))
                 {
                     return true;
                 }
