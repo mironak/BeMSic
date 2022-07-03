@@ -136,9 +136,31 @@ namespace BeMSic.Bmson
         {
             _builder.AppendLine("*---------------------- HEADER FIELD");
             _builder.AppendLine(string.Empty);
-            _builder.AppendLine($"#GENRE {_bmson.info.genre}");
-            _builder.AppendLine($"#TITLE {_bmson.info.title}");
-            _builder.AppendLine($"#ARTIST {_bmson.info.artist}");
+
+            string genre = string.Empty;
+            if (_bmson.info.genre != null)
+            {
+                // genre = _bmson.info.genre;
+            }
+
+            _builder.AppendLine($"#GENRE {genre}");
+
+            string title = string.Empty;
+            if (_bmson.info.title != null)
+            {
+                // title = _bmson.info.title;
+            }
+
+            _builder.AppendLine($"#TITLE {title}");
+
+            string artist = string.Empty;
+            if (_bmson.info.artist != null)
+            {
+                // artist = _bmson.info.artist;
+            }
+
+            _builder.AppendLine($"#ARTIST {artist}");
+
             _builder.AppendLine($"#BPM {_bmson.info.init_bpm}");
             _builder.AppendLine($"#PLAYLEVEL {_bmson.info.level}");
             _builder.AppendLine(string.Empty);
