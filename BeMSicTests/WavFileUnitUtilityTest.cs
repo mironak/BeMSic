@@ -19,7 +19,7 @@ namespace BeMSicTests
 
             for(int i = 0; i < partials.Count; i++)
             {
-                Assert.Equal(i * 5 + 101, partials[i].Num);
+                Assert.Equal(i * 5 + 101, partials[i].Wav.Num);
             }
 
             Assert.Equal(20, partials.Count);

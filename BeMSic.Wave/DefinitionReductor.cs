@@ -71,7 +71,7 @@ namespace BeMSic.Wave
 
             for (int i = 0; i < originalFiles.Count; i++)
             {
-                replaces.Add(new BmsReplace(originalFiles[i].Num, replaced[i].Num));
+                replaces.Add(new BmsReplace(originalFiles[i].Wav.Num, replaced[i].Wav.Num));
             }
 
             return replaces;
@@ -99,7 +99,7 @@ namespace BeMSic.Wave
             for (int i = index + 1; i < replacedFiles.Count; i++)
             {
                 // Ignore replaced wav
-                if (replacedFiles[i].Num < originalFiles.Num)
+                if (replacedFiles[i].Wav.Num < originalFiles.Wav.Num)
                 {
                     continue;
                 }

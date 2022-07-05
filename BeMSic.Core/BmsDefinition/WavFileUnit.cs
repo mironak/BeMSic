@@ -12,14 +12,14 @@
         /// <param name="name">ファイル名</param>
         public WavFileUnit(int num, string name)
         {
-            Num = num;
+            Wav = new WavDefinition(num);
             Name = name;
         }
 
         /// <summary>
         /// #WAV番号
         /// </summary>
-        public int Num { get; set; }
+        public WavDefinition Wav { get; set; }
 
         /// <summary>
         /// ファイル名

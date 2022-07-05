@@ -16,7 +16,7 @@ namespace BeMSic.Bmson
         private readonly StringBuilder _builder = new　();
         private List<double> _exbpms = new ();              // 拡張BPM
         private bool _isBgmOnly;
-        private List<int> _notesWavIndices = new List<int>();
+        private List<int> _notesWavIndices = new ();
 
         /// <summary>
         /// コンストラクタ
@@ -310,7 +310,7 @@ namespace BeMSic.Bmson
             _notesWavIndices.Clear();
 
             int wavIndex = 1;
-            List<Note> notes = new List<Note>();
+            List<Note> notes = new ();
 
             foreach (var note in _bmson.sound_channels[_soundIndex].notes)
             {

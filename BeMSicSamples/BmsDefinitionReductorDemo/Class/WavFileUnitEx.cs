@@ -14,9 +14,9 @@ namespace BmsDefinitionReductorDemo.Class
         /// Constructor
         /// </summary>
         /// <param name="wfu"></param>
-        public WavFileUnitEx(WavFileUnit wfu) : base(wfu.Num, wfu.Name)
+        public WavFileUnitEx(WavFileUnit wfu) : base(wfu.Wav.Num, wfu.Name)
         {
-            NumText = RadixConvert.IntToZZ(wfu.Num);
+            NumText = RadixConvert.IntToZZ(wfu.Wav.Num);
         }
     }
 }

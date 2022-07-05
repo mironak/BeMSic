@@ -62,12 +62,12 @@ namespace BeMSic.Core.BmsDefinition
             List<WavFileUnit> partialWavs = new ();
             foreach (WavFileUnit wav in fileList)
             {
-                if (wav.Num < start)
+                if (wav.Wav.Num < start)
                 {
                     continue;
                 }
 
-                if (end < wav.Num)
+                if (end < wav.Wav.Num)
                 {
                     break;
                 }

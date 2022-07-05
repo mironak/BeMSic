@@ -56,6 +56,36 @@ namespace BeMSic.BmsFileOperator
             return writeData;
         }
 
+        public static string GetBgmShiftedBmsFile(string bms, int offset)
+        {
+            string writeData = string.Empty;
+            string prevLine = "#999";
+
+            using (StringReader sr = new (bms))
+            {
+                string? readLine;
+                while ((readLine = sr.ReadLine()) != null)
+                {
+                    if (!BmsCommandSearch.IsBgmLine(readLine))
+                    {
+                        writeData += readLine + "\n";
+                        continue;
+                    }
+
+                    if (BmsCommandSearch.IsSameBar(readLine, prevLine))
+                    {
+                        writeData += readLine + "\n";
+                        continue;
+                    }
+
+                    writeData += BmsManager.ShiftBgmLine(readLine, offset) + "\n";
+                    prevLine = readLine;
+                }
+            }
+
+            return writeData;
+        }
+
         /// <summary>
         /// MAIN行で使用されていない#WAV定義を削除する
         /// </summary>
@@ -286,7 +316,7 @@ namespace BeMSic.BmsFileOperator
             List<int> wavFiles = new ();
             foreach (WavFileUnit wav in wavs)
             {
-                wavFiles.Add(wav.Num);
+                wavFiles.Add(wav.Wav.Num);
             }
 
             return wavFiles;

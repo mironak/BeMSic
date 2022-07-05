@@ -62,6 +62,12 @@ namespace BeMSic.BmsFileOperator
             return this;
         }
 
+        public BmsConverter Shift(int offset)
+        {
+            _bms = BmsDefinitionReplace.GetBgmShiftedBmsFile(_bms, offset);
+            return this;
+        }
+
         /// <summary>
         /// BMSを合体する
         /// </summary>

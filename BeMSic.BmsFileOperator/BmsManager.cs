@@ -98,5 +98,15 @@ namespace BeMSic.BmsFileOperator
 
             return MainLineManager.GetWavDefinition(line);
         }
+
+        public static string ShiftBgmLine(string line, int offset)
+        {
+            if (!BmsCommandSearch.IsBgmLine(line))
+            {
+                return line + "\n";
+            }
+
+            return MainLineManager.ShiftBgmLane(line, offset) + "\n";
+        }
     }
 }

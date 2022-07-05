@@ -115,6 +115,27 @@ namespace BeMSic.BmsFileOperator.LineOperation
         }
 
         /// <summary>
+        /// BGM行をoffsetの分右にずらす
+        /// </summary>
+        /// <param name="line">#MAIN行</param>
+        /// <param name="offset">増分</param>
+        /// <returns>#MAIN行(ずらし後)</returns>
+        internal static string ShiftBgmLane(string line, int offset)
+        {
+            string dest = string.Empty;
+            string destHead = line[..MainLineDef.DataStart];
+
+            for (int i = 0; i < offset; i++)
+            {
+                dest += destHead + "00\n";
+            }
+
+            dest += line;
+
+            return dest;
+        }
+
+        /// <summary>
         /// MAIN行の#WAVインデックスを1つずつ取り出す
         /// </summary>
         private class MainLineDef
