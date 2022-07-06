@@ -37,7 +37,7 @@ namespace BmsMerger
             {
                 _bms1Converter!.DeleteUnusedWav().ArrangeWav();
                 _bms2Converter!.DeleteUnusedWav().ArrangeWav();
-                _bms1Converter.AddRange(_bms2Converter);
+                ////_bms1Converter.AddRange(_bms2Converter);
 
                 // Output
                 File.WriteAllText(OutputFileTextBox.Text, _bms1Converter.Bms);

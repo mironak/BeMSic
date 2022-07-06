@@ -40,7 +40,7 @@ namespace BeMSic.BmsFileOperator
         /// <returns>置換後BMSテキスト</returns>
         public static string GetOffsetedBmsFile(string bms, int offset)
         {
-            List<int> wavs = GetWavIndexes(bms);
+            List<WavDefinition> wavs = GetWavIndexes(bms);
             string writeData = string.Empty;
 
             using (StringReader sr = new (bms))
@@ -95,7 +95,7 @@ namespace BeMSic.BmsFileOperator
         {
             string writeData = string.Empty;
             string? readLine;
-            List<int> wavs = GetUsedWavList(bms);
+            List<WavDefinition> wavs = GetUsedWavList(bms);
 
             using (StringReader sr = new (bms))
             {
@@ -103,7 +103,7 @@ namespace BeMSic.BmsFileOperator
                 {
                     if (BmsCommandSearch.GetLineCommand(readLine) == BmsCommandSearch.BmsCommand.WAV)
                     {
-                        int index = wavs.IndexOf(RadixConvert.ZZToInt(readLine.Substring(4, 2)));
+                        int index = wavs.IndexOf(new WavDefinition(readLine.Substring(4, 2)));
                         if (index == -1)
                         {
                             continue;
@@ -124,7 +124,7 @@ namespace BeMSic.BmsFileOperator
         /// <returns>置換後BMSテキスト</returns>
         public static string GetWavArrangedBmsFile(string bms)
         {
-            List<int> uniqueList = GetUsedWavList(bms).Distinct().OrderBy(i => i).ToList();
+            List<WavDefinition> uniqueList = GetUsedWavList(bms).Distinct().OrderBy(i => i).ToList();
 
             return GetReplacedArrangedData(bms, uniqueList);
         }
@@ -134,9 +134,9 @@ namespace BeMSic.BmsFileOperator
         /// </summary>
         /// <param name="bms">BMSテキスト</param>
         /// <returns>#WAV番号一覧</returns>
-        public static List<int> GetUsedWavList(string bms)
+        public static List<WavDefinition> GetUsedWavList(string bms)
         {
-            List<int> wavs = new ();
+            List<WavDefinition> wavs = new ();
 
             using (StringReader sr = new (bms))
             {
@@ -157,55 +157,55 @@ namespace BeMSic.BmsFileOperator
         /// <param name="bms1">BMS1テキスト</param>
         /// <param name="bms2">BMS2テキスト</param>
         /// <returns>合体後BMS</returns>
-        public static string GetMargedBms(string bms1, string bms2)
-        {
-            int bms1WavMax = GetUsedWavList(bms1).Max();
-            int bms2WavMax = GetUsedWavList(bms2).Max();
+        //public static string GetMargedBms(string bms1, string bms2)
+        //{
+        //    int bms1WavMax = GetUsedWavList(bms1).Max();
+        //    int bms2WavMax = GetUsedWavList(bms2).Max();
 
-            // 定義数ZZ確認
-            if (bms1WavMax + bms2WavMax > 1295)
-            {
-                throw new ArgumentOutOfRangeException(nameof(bms1) + nameof(bms2), "Definition over");
-            }
+        //    // 定義数ZZ確認
+        //    if (bms1WavMax + bms2WavMax > 1295)
+        //    {
+        //        throw new ArgumentOutOfRangeException(nameof(bms1) + nameof(bms2), "Definition over");
+        //    }
 
-            int max = 0;
-            string writeBmsData = string.Empty;
-            string bmsOffsetted = new BmsConverter(bms2).Offset(bms1WavMax).Bms;
+        //    int max = 0;
+        //    string writeBmsData = string.Empty;
+        //    string bmsOffsetted = new BmsConverter(bms2).Offset(bms1WavMax).Bms;
 
-            using (StringReader sr = new (bms1))
-            {
-                string? readLine;
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    writeBmsData += readLine + "\n";
+        //    using (StringReader sr = new (bms1))
+        //    {
+        //        string? readLine;
+        //        while ((readLine = sr.ReadLine()) != null)
+        //        {
+        //            writeBmsData += readLine + "\n";
 
-                    switch (BmsCommandSearch.GetLineCommand(readLine))
-                    {
-                        case BmsCommandSearch.BmsCommand.WAV:
-                            writeBmsData += AddBmsLine(readLine, bms1WavMax, bmsOffsetted);
-                            break;
+        //            switch (BmsCommandSearch.GetLineCommand(readLine))
+        //            {
+        //                case BmsCommandSearch.BmsCommand.WAV:
+        //                    writeBmsData += AddBmsLine(readLine, bms1WavMax, bmsOffsetted);
+        //                    break;
 
-                        case BmsCommandSearch.BmsCommand.MAIN:
-                            int now = GetLineNumber(readLine);
+        //                case BmsCommandSearch.BmsCommand.MAIN:
+        //                    int now = GetLineNumber(readLine);
 
-                            // 最終小節番号を保持
-                            if (max < now)
-                            {
-                                max = now;
-                            }
+        //                    // 最終小節番号を保持
+        //                    if (max < now)
+        //                    {
+        //                        max = now;
+        //                    }
 
-                            break;
+        //                    break;
 
-                        default:
-                            break;
-                    }
-                }
-            }
+        //                default:
+        //                    break;
+        //            }
+        //        }
+        //    }
 
-            writeBmsData += AddMainLine(bmsOffsetted, max + 1) + "\n";
+        //    writeBmsData += AddMainLine(bmsOffsetted, max + 1) + "\n";
 
-            return writeBmsData;
-        }
+        //    return writeBmsData;
+        //}
 
         /// <summary>
         /// #WAVインデックスを前詰めしたBMSデータを取得する
@@ -213,7 +213,7 @@ namespace BeMSic.BmsFileOperator
         /// <param name="bms">BMSテキスト</param>
         /// <param name="uniqueList">#WAV番号一覧(重複なし)</param>
         /// <returns>前詰め後BMSテキスト</returns>
-        public static string GetReplacedArrangedData(string bms, List<int> uniqueList)
+        public static string GetReplacedArrangedData(string bms, List<WavDefinition> uniqueList)
         {
             string writeData = string.Empty;
             string? readLine;
@@ -309,14 +309,14 @@ namespace BeMSic.BmsFileOperator
         /// </summary>
         /// <param name="bms">BMSテキスト</param>
         /// <returns>#WAV番号一覧</returns>
-        private static List<int> GetWavIndexes(string bms)
+        private static List<WavDefinition> GetWavIndexes(string bms)
         {
-            List<WavFileUnit> wavs = FileList.GetWavsRelativePath(bms);
+            var wavs = FileList.GetWavsRelativePath(bms).Get();
 
-            List<int> wavFiles = new ();
+            List<WavDefinition> wavFiles = new ();
             foreach (WavFileUnit wav in wavs)
             {
-                wavFiles.Add(wav.Wav.Num);
+                wavFiles.Add(wav.Wav);
             }
 
             return wavFiles;

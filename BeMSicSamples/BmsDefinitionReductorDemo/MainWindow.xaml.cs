@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using NAudio.Wave;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
@@ -22,7 +23,7 @@ namespace BmsDefinitionReductor
     public partial class MainWindow : Window
     {
         BmsConverter? _bmsConverter;
-        List<WavFileUnit>? _files;
+        WavFileUnitUtility _files;
         readonly string OutputFileName = @"out.bms";
         private Progress<int> _progress;
 
@@ -83,7 +84,7 @@ namespace BmsDefinitionReductor
                 _bmsConverter = new BmsConverter(bms);
                 _files = FileList.GetWavsFullPath(_bmsConverter.Bms, bmsDirectory);
 
-                FilesListView.ItemsSource = GetDisplayedValuesList(_files);
+                FilesListView.ItemsSource = GetDisplayedValuesList(_files.Get());
                 DefinitionReductButton.IsEnabled = true;
             }
             catch
@@ -146,8 +147,8 @@ namespace BmsDefinitionReductor
 
             // 処理実行開始
             StateViewBusy(true);
-            int start = RadixConvert.ZZToInt(Definition_Start.Text);
-            int end = RadixConvert.ZZToInt(Definition_End.Text);
+            var start = new WavDefinition(Definition_Start.Text);
+            var end = new WavDefinition(Definition_End.Text);
             bool lengthMatchIsChecked = false;
             if (LengthMatchCheckBox.IsChecked != null)
             {
@@ -158,8 +159,8 @@ namespace BmsDefinitionReductor
             {
                 await Task.Run(() =>
                 {
-                    var partialFiles = WavFileUnitUtility.GetPartialWavs(_files!, start, end);
-                    var replaces = DefinitionReductor.GetWavReplaces(partialFiles, _progress, lengthMatchIsChecked, r2Val);
+                    var partialFiles = _files.GetPartialWavs(start, end);
+                    var replaces = DefinitionReductor.GetWavReplaces(partialFiles.Get(), _progress, lengthMatchIsChecked, r2Val);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();
                     File.WriteAllText(dialog.FileName, _bmsConverter.Bms);
@@ -214,7 +215,7 @@ namespace BmsDefinitionReductor
         /// </summary>
         /// <param name="fileListBase"></param>
         /// <returns></returns>
-        private static ObservableCollection<WavFileUnitEx> GetDisplayedValuesList(List<WavFileUnit> fileListBase)
+        private static ObservableCollection<WavFileUnitEx> GetDisplayedValuesList(ImmutableArray<WavFileUnit> fileListBase)
         {
             ObservableCollection<WavFileUnitEx> fileList = new ObservableCollection<WavFileUnitEx>();
 

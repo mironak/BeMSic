@@ -14,11 +14,11 @@ namespace BeMSic.BmsFileOperator
         /// <param name="bms">BMSテキスト</param>
         /// <param name="bmsDirectory">BMSファイルのあるディレクトリ</param>
         /// <returns>#WAV絶対パス</returns>
-        public static List<WavFileUnit> GetWavsFullPath(string bms, string bmsDirectory)
+        public static WavFileUnitUtility GetWavsFullPath(string bms, string bmsDirectory)
         {
-            List<WavFileUnit> wavs = GetWavsRelativePath(bms);
+            var wavs = GetWavsRelativePath(bms).Get();
 
-            List<WavFileUnit> wavFiles = new ();
+            WavFileUnitUtility wavFiles = new ();
             foreach (WavFileUnit wav in wavs)
             {
                 wav.Name = bmsDirectory + "\\" + wav.Name;
@@ -33,9 +33,9 @@ namespace BeMSic.BmsFileOperator
         /// </summary>
         /// <param name="bms">BMSテキスト</param>
         /// <returns>#WAV相対パス</returns>
-        public static List<WavFileUnit> GetWavsRelativePath(string bms)
+        public static WavFileUnitUtility GetWavsRelativePath(string bms)
         {
-            List<WavFileUnit> wavFiles = new List<WavFileUnit>();
+            WavFileUnitUtility wavFiles = new ();
 
             using (StringReader sr = new (bms))
             {

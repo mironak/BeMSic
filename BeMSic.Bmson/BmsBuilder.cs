@@ -10,13 +10,13 @@ namespace BeMSic.Bmson
     /// </summary>
     internal class BmsBuilder
     {
-        private readonly List<WavFileUnit> _wavs;           // #WAV
+        private readonly WavFileUnitUtility _wavs;           // #WAV
         private readonly int _soundIndex;
         private readonly BmsonFormat _bmson;
         private readonly StringBuilder _builder = new　();
+        private readonly List<int> _notesWavIndices = new();
         private List<double> _exbpms = new ();              // 拡張BPM
         private bool _isBgmOnly;
-        private List<int> _notesWavIndices = new ();
 
         /// <summary>
         /// コンストラクタ
@@ -32,7 +32,7 @@ namespace BeMSic.Bmson
 
             _bmson = bmson;
             _soundIndex = soundIndex;
-            _wavs = new List<WavFileUnit>();
+            _wavs = new WavFileUnitUtility();
         }
 
         /// <summary>
@@ -207,10 +207,12 @@ namespace BeMSic.Bmson
         /// </summary>
         private void SetWavField()
         {
+            var wavs = _wavs.Get();
+
             // Set each #WAV
-            for (int i = 0; i < _wavs.Count; i++)
+            for (int i = 0; i < _wavs.Count(); i++)
             {
-                _builder.Append(GetWavLineText(i + 1, _wavs[i].Name));
+                _builder.Append(GetWavLineText(i + 1, wavs[i].Name));
             }
 
             _builder.AppendLine(string.Empty);

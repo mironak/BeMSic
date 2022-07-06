@@ -62,22 +62,27 @@ namespace BeMSic.BmsFileOperator
             return this;
         }
 
+        /// <summary>
+        /// BGMレーンをoffsetの分だけ右にずらす
+        /// </summary>
+        /// <param name="offset">ずらす数</param>
+        /// <returns>BmsConverter</returns>
         public BmsConverter Shift(int offset)
         {
             _bms = BmsDefinitionReplace.GetBgmShiftedBmsFile(_bms, offset);
             return this;
         }
 
-        /// <summary>
-        /// BMSを合体する
-        /// </summary>
-        /// <param name="bms">合体させるBMSテキスト</param>
-        /// <returns>BmsConverter</returns>
-        public BmsConverter AddRange(BmsConverter bms)
-        {
-            _bms = BmsDefinitionReplace.GetMargedBms(_bms, bms.Bms);
-            return this;
-        }
+        //// <summary>
+        //// BMSを合体する
+        //// </summary>
+        //// <param name="bms">合体させるBMSテキスト</param>
+        //// <returns>BmsConverter</returns>
+        ////public BmsConverter AddRange(BmsConverter bms)
+        ////{
+        //    _bms = BmsDefinitionReplace.GetMargedBms(_bms, bms.Bms);
+        //    return this;
+        ////}
 
         /// <summary>
         /// #WAV定義を置換する

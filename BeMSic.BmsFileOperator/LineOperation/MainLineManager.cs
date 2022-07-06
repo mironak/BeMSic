@@ -30,16 +30,16 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// </summary>
         /// <param name="line">MAIN行</param>
         /// <returns>#WAV定義一覧</returns>
-        internal static List<int> GetWavDefinition(string line)
+        internal static List<WavDefinition> GetWavDefinition(string line)
         {
-            List<int> result = new ();
+            List<WavDefinition> result = new ();
             MainLineDef mainLine = new (line);
             while (mainLine.HasNext())
             {
-                int writeVal = RadixConvert.ZZToInt(mainLine.Next());
+                WavDefinition writeVal = mainLine.Next();
 
                 // 00は無視
-                if (writeVal == 0)
+                if (writeVal.Num == 0)
                 {
                     continue;
                 }
@@ -66,18 +66,18 @@ namespace BeMSic.BmsFileOperator.LineOperation
 
             while (mainLine.HasNext())
             {
-                string writeVal = mainLine.Next();
+                WavDefinition writeVal = mainLine.Next();
 
                 foreach (BmsReplace wav in replaces)
                 {
-                    if (RadixConvert.ZZToInt(writeVal) == wav.NowNum)
+                    if (writeVal.Equals(wav.NowNum))
                     {
-                        writeVal = RadixConvert.IntToZZ(wav.NewNum);
+                        writeVal = wav.NewNum;
                         break;
                     }
                 }
 
-                dest += writeVal;
+                dest += writeVal.ZZ;
             }
 
             return dest;
@@ -90,25 +90,25 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <param name="wavs">#WAV一覧</param>
         /// <param name="offset">増分</param>
         /// <returns>#MAIN行(#WAVずらし後)</returns>
-        internal static string OffsetMainLineDefinition(string line, List<int> wavs, int offset)
+        internal static string OffsetMainLineDefinition(string line, List<WavDefinition> wavs, int offset)
         {
             MainLineDef mainLine = new (line);
             string dest = line[..MainLineDef.DataStart];
 
             while (mainLine.HasNext())
             {
-                string writeVal = mainLine.Next();
+                var writeVal = mainLine.Next();
 
-                foreach (int wav in wavs)
+                foreach (var wav in wavs)
                 {
-                    if (RadixConvert.ZZToInt(writeVal) == wav)
+                    if (writeVal.Equals(wav))
                     {
-                        writeVal = RadixConvert.IntToZZ(wav + offset);
+                        writeVal = new WavDefinition(wav.Num + offset);
                         break;
                     }
                 }
 
-                dest += writeVal;
+                dest += writeVal.ZZ;
             }
 
             return dest;
@@ -167,9 +167,9 @@ namespace BeMSic.BmsFileOperator.LineOperation
             /// 次の#WAV番号を取得
             /// </summary>
             /// <returns>#WAV番号</returns>
-            public string Next()
+            public WavDefinition Next()
             {
-                string ret = _line.Substring(_pos, 2);
+                WavDefinition ret = new WavDefinition(_line.Substring(_pos, 2));
                 _pos += 2;
                 return ret;
             }

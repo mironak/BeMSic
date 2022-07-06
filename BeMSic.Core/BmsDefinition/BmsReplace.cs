@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="nowNum">#WAV番号</param>
         /// <param name="newNum">ファイル名</param>
-        public BmsReplace(int nowNum, int newNum)
+        public BmsReplace(WavDefinition nowNum, WavDefinition newNum)
         {
             NowNum = nowNum;
             NewNum = newNum;
@@ -19,11 +19,11 @@
         /// <summary>
         /// 現在の#WAV番号
         /// </summary>
-        public int NowNum { get; set; }
+        public WavDefinition NowNum { get; set; }
 
         /// <summary>
         /// 新しい#WAV番号
         /// </summary>
-        public int NewNum { get; set; }
+        public WavDefinition NewNum { get; set; }
     }
 }

@@ -2,9 +2,13 @@
 
 namespace BeMSic.Core.BmsDefinition
 {
-    public class WavDefinition
+    /// <summary>
+    /// #WAV定義
+    /// </summary>
+    public class WavDefinition : IEquatable<WavDefinition>
     {
         public readonly int Num;
+        public readonly string ZZ;
 
         /// <summary>
         /// コンストラクタ
@@ -18,6 +22,39 @@ namespace BeMSic.Core.BmsDefinition
             }
 
             Num = num;
+            ZZ = RadixConvert.IntToZZ(num);
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="zz">#WAVインデックス(文字列ZZ)</param>
+        public WavDefinition(string zz)
+        {
+            var num = RadixConvert.ZZToInt(zz);
+
+            if (!IsInRange(num))
+            {
+                throw new ArgumentOutOfRangeException(nameof(zz));
+            }
+
+            Num = num;
+            ZZ = zz;
+        }
+
+        /// <summary>
+        /// 等価演算
+        /// </summary>
+        /// <param name="other">other</param>
+        /// <returns>等価ならtrue</returns>
+        public bool Equals(WavDefinition? other)
+        {
+            if (other == null)
+            {
+                return false;
+            }
+
+            return Num == other.Num;
         }
 
         /// <summary>
