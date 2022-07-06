@@ -1,4 +1,6 @@
 ﻿using BeMSic.BmsFileOperator;
+using BeMSic.Core.BmsDefinition;
+using BeMSic.Core.Helpers;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -33,6 +35,49 @@ namespace BmsShifter
         private void button_Click(object sender, RoutedEventArgs e)
         {
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            var loadDialog = new OpenFileDialog
+            {
+                Filter = "BMSファイル (*.*)|*.*"
+            };
+            var saveDialog = new SaveFileDialog
+            {
+                Filter = "BMSファイル (*.*)|*.*"
+            };
+
+            try
+            {
+                if (loadDialog.ShowDialog() == false)
+                {
+                    return;
+                }
+
+                if (saveDialog.ShowDialog() == false)
+                {
+                    return;
+                }
+
+                var bmsText = File.ReadAllText(loadDialog.FileName, Encoding.GetEncoding("shift_jis"));
+                _bmsConverter = new BmsConverter(bmsText);
+
+                var offset = new WavDefinition(WavStartTextBox.Text);
+                _bmsConverter.Offset(offset.Num);
+
+                var shift = int.Parse(BgmShiftSizeTextBox.Text);
+                _bmsConverter.Shift(shift);
+
+                // Output
+                File.WriteAllText(saveDialog.FileName, _bmsConverter.Bms);
+                MessageBox.Show("Completed.");
+            }
+            catch
+            {
+                MessageBox.Show("BMSファイルを読み込んでください。");
+            }
+        }
+
+        private void WavStartFromBmsButton_Click(object sender, RoutedEventArgs e)
+        {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             var dialog = new OpenFileDialog
             {
                 Filter = "BMSファイル (*.*)|*.*"
@@ -47,12 +92,11 @@ namespace BmsShifter
                 var bmsFileName = dialog.FileName;
 
                 var bmsText = File.ReadAllText(bmsFileName, Encoding.GetEncoding("shift_jis"));
-                _bmsConverter = new BmsConverter(bmsText);
+                var bmsConverter = new BmsConverter(bmsText);
 
-                _bmsConverter.Shift(3);
-
-
-                File.WriteAllText("a.bms", _bmsConverter.Bms);
+                bmsConverter.DeleteUnusedWav().ArrangeWav();
+                List<WavDefinition> wavs = BmsDefinitionReplace.GetUsedWavList(bmsConverter.Bms);
+                WavStartTextBox.Text = RadixConvert.IntToZZ(wavs.Max(x => x.Num));
             }
             catch
             {

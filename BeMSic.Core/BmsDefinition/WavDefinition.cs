@@ -5,7 +5,7 @@ namespace BeMSic.Core.BmsDefinition
     /// <summary>
     /// #WAV定義
     /// </summary>
-    public class WavDefinition : IEquatable<WavDefinition>
+    public class WavDefinition : IEquatable<WavDefinition>, IComparable<WavDefinition>
     {
         public readonly int Num;
         public readonly string ZZ;
@@ -75,6 +75,16 @@ namespace BeMSic.Core.BmsDefinition
             }
 
             return true;
+        }
+
+        public int CompareTo(WavDefinition? other)
+        {
+            if (other == null)
+            {
+                return int.MinValue;
+            }
+
+            return Num - other.Num;
         }
     }
 }

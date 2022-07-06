@@ -5,9 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BmsShifter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="250" Width="250">
     <Grid>
-        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="111,190,0,0" VerticalAlignment="Top" Click="button_Click"/>
+        <Button x:Name="button" Content="Convert" HorizontalAlignment="Left" Margin="10,117,0,0" VerticalAlignment="Top" Click="button_Click" Height="27" Width="166"/>
+        <TextBox x:Name="BgmShiftSizeTextBox" HorizontalAlignment="Left" Margin="98,54,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28"/>
+        <Label x:Name="BgmShiftSizeLabel" Content="BGM shift size" HorizontalAlignment="Left" Margin="10,54,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="WavStartLabel" Content="#WAV start" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="WavStartTextBox" HorizontalAlignment="Left" Margin="98,9,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28"/>
+        <Button x:Name="WavStartFromBmsButton" Content="From BMS" HorizontalAlignment="Left" Margin="158,10,0,0" VerticalAlignment="Top" Height="27" Width="66" Click="WavStartFromBmsButton_Click"/>
 
     </Grid>
 </Window>
