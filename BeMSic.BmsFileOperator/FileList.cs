@@ -43,7 +43,9 @@ namespace BeMSic.BmsFileOperator
 
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (BmsCommandSearch.GetLineCommand(line) == BmsCommandSearch.BmsCommand.WAV)
+                    var bmsLine = new BmsLine(line);
+
+                    if (bmsLine.IsWav())
                     {
                         wavFiles.Add(WavLineManager.GetWavData(line));
                     }

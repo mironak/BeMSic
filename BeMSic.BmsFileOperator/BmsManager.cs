@@ -16,15 +16,13 @@ namespace BeMSic.BmsFileOperator
         /// <returns>置換後BMSテキスト行</returns>
         public static string ReplaceLineDefinition(string line, List<BmsReplace> replaces)
         {
-            switch (BmsCommandSearch.GetLineCommand(line))
+            var bmsLine = new BmsLine(line);
+            if (!bmsLine.IsMain())
             {
-                case BmsCommandSearch.BmsCommand.MAIN:
-                    return MainLineManager.ReplaceMainLineWav(line, replaces);
-
-                default:
-                    // Copy line, if it is not to be replaced.
-                    return line;
+                return line;
             }
+
+            return MainLineManager.ReplaceMainLineWav(line, replaces);
         }
 
         /// <summary>
@@ -36,18 +34,19 @@ namespace BeMSic.BmsFileOperator
         /// <returns>ずらした後のBMSテキスト行</returns>
         public static string OffsettedLineDefinition(string line, List<WavDefinition> wavs, int offset)
         {
-            switch (BmsCommandSearch.GetLineCommand(line))
+            var bmsLine = new BmsLine(line);
+            if (bmsLine.IsMain())
             {
-                case BmsCommandSearch.BmsCommand.MAIN:
-                    return MainLineManager.OffsetMainLineDefinition(line, wavs, offset);
-
-                case BmsCommandSearch.BmsCommand.WAV:
-                    return WavLineManager.OffsetWavLineDefinition(line, wavs, offset);
-
-                default:
-                    // Copy line, if it is not to be replaced.
-                    return line;
+                return MainLineManager.OffsetMainLineDefinition(line, wavs, offset);
             }
+
+            if (bmsLine.IsWav())
+            {
+                return WavLineManager.OffsetWavLineDefinition(line, wavs, offset);
+            }
+
+            // Copy line, if it is not to be replaced.
+            return line;
         }
 
         /// <summary>
@@ -65,24 +64,25 @@ namespace BeMSic.BmsFileOperator
                 replaceList.Add(new BmsReplace(nowWavs[i], newWav));
             }
 
-            switch (BmsCommandSearch.GetLineCommand(line))
+            var bmsLine = new BmsLine(line);
+            if (bmsLine.IsMain())
             {
-                case BmsCommandSearch.BmsCommand.MAIN:
-                    return MainLineManager.ReplaceMainLineWav(line, replaceList) + "\n";
-
-                case BmsCommandSearch.BmsCommand.WAV:
-                    string retLine = WavLineManager.ReplaceWavLineDefinition(line, replaceList);
-                    if (retLine == string.Empty)
-                    {
-                        // not defined
-                        return string.Empty;
-                    }
-
-                    return retLine + "\n";
-
-                default:
-                    return line + "\n";
+                return MainLineManager.ReplaceMainLineWav(line, replaceList) + "\n";
             }
+
+            if (bmsLine.IsWav())
+            {
+                string retLine = WavLineManager.ReplaceWavLineDefinition(line, replaceList);
+                if (retLine == string.Empty)
+                {
+                    // not defined
+                    return string.Empty;
+                }
+
+                return retLine + "\n";
+            }
+
+            return line + "\n";
         }
 
         /// <summary>
@@ -92,7 +92,8 @@ namespace BeMSic.BmsFileOperator
         /// <returns>行内の#WAV番号一覧</returns>
         public static List<WavDefinition> GetLineDefinition(string line)
         {
-            if (BmsCommandSearch.GetLineCommand(line) != BmsCommandSearch.BmsCommand.MAIN)
+            var bmsLine = new BmsLine(line);
+            if (!bmsLine.IsMain())
             {
                 return new List<WavDefinition>();
             }
@@ -102,7 +103,8 @@ namespace BeMSic.BmsFileOperator
 
         public static string ShiftBgmLine(string line, int offset)
         {
-            if (!BmsCommandSearch.IsBgmLine(line))
+            var bmsLine = new BmsLine(line);
+            if (!bmsLine.IsBgm())
             {
                 return line + "\n";
             }

@@ -9,19 +9,30 @@ namespace BeMSic.Wave
     /// <summary>
     /// 定義削減
     /// </summary>
-    public static class DefinitionReductor
+    public class DefinitionReductor
     {
+        private ImmutableArray<WavFileUnit> _originalFiles;
+        private WaveStream[] _readers;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="originalFiles"></param>
+        public DefinitionReductor(ImmutableArray<WavFileUnit> originalFiles)
+        {
+            _originalFiles = originalFiles;
+            _readers = PreserveWavFileReader(_originalFiles);
+        }
+
         /// <summary>
         /// Create replaced .wav files table.
         /// </summary>
-        /// <param name="originalFiles">Original files</param>
         /// <param name="progress">IProgress</param>
         /// <param name="isSameLength">同じ長さのみ比較する場合はtrue</param>
         /// <param name="r2val">Match rate threshold</param>
         /// <param name="comparator">Evaluation function</param>
         /// <returns>置換テーブル</returns>
-        public static List<WavFileUnit> GetReplacedTable(
-            ImmutableArray<WavFileUnit> originalFiles,
+        public List<WavFileUnit> GetReplacedTable(
             IProgress<int> progress,
             bool isSameLength,
             float r2val,
@@ -29,15 +40,14 @@ namespace BeMSic.Wave
         {
             progress.Report(0);
 
-            List<WavFileUnit> replacedFiles = new (originalFiles);
-            WaveStream[] readers = PreserveWavFileReader(originalFiles);
+            List<WavFileUnit> replacedFiles = new (_originalFiles);
 
             // Compare wavs
-            for (int i = 0; i < originalFiles.Length; i++)
+            for (int i = 0; i < _originalFiles.Length; i++)
             {
-                ReplaceWav(originalFiles[i], replacedFiles, isSameLength, r2val, comparator, readers, i);
+                ReplaceWav(replacedFiles, isSameLength, r2val, comparator, i);
 
-                progress.Report((int)((float)i / originalFiles.Length * 100));
+                progress.Report((int)((float)i / _originalFiles.Length * 100));
             }
 
             progress.Report(100);
@@ -47,32 +57,30 @@ namespace BeMSic.Wave
         /// <summary>
         /// wav置換テーブルを取得(デフォルト比較関数使用)
         /// </summary>
-        /// <param name="originalFiles">Original files</param>
         /// <param name="progress">IProgress</param>
         /// <param name="isSameLength">同じ長さのみ比較する場合はtrue</param>
         /// <param name="r2val">Match rate threshold</param>
         /// <returns>置換テーブル</returns>
-        public static List<WavFileUnit> GetReplacedTable(ImmutableArray<WavFileUnit> originalFiles, IProgress<int> progress, bool isSameLength, float r2val)
+        public List<WavFileUnit> GetReplacedTable(IProgress<int> progress, bool isSameLength, float r2val)
         {
-            return GetReplacedTable(originalFiles, progress, isSameLength, r2val, WaveValidation.CalculateRSquared);
+            return GetReplacedTable(progress, isSameLength, r2val, WaveValidation.CalculateRSquared);
         }
 
         /// <summary>
         /// wav置換テーブルを取得
         /// </summary>
-        /// <param name="originalFiles">Original files</param>
         /// <param name="progress">IProgress</param>
         /// <param name="isSameLength">同じ長さのみ比較する場合はtrue</param>
         /// <param name="r2val">Match rate threshold</param>
         /// <returns>置換テーブル</returns>
-        public static List<BmsReplace> GetWavReplaces(ImmutableArray<WavFileUnit> originalFiles, IProgress<int> progress, bool isSameLength, float r2val)
+        public List<BmsReplace> GetWavReplaces(IProgress<int> progress, bool isSameLength, float r2val)
         {
             List<BmsReplace> replaces = new ();
-            List<WavFileUnit> replaced = GetReplacedTable(originalFiles, progress, isSameLength, r2val, WaveValidation.CalculateRSquared);
+            List<WavFileUnit> replaced = GetReplacedTable(progress, isSameLength, r2val);
 
-            for (int i = 0; i < originalFiles.Length; i++)
+            for (int i = 0; i < _originalFiles.Length; i++)
             {
-                replaces.Add(new BmsReplace(originalFiles[i].Wav, replaced[i].Wav));
+                replaces.Add(new BmsReplace(_originalFiles[i].Wav, replaced[i].Wav));
             }
 
             return replaces;
@@ -81,40 +89,36 @@ namespace BeMSic.Wave
         /// <summary>
         /// replace wav
         /// </summary>
-        /// <param name="originalFiles">置換対象</param>
         /// <param name="replacedFiles">置換リスト</param>
         /// <param name="isSameLength">同じ長さのみ比較する場合はtrue</param>
         /// <param name="r2val">相関係数</param>
         /// <param name="comparator">比較関数</param>
-        /// <param name="readers">WaveStream</param>
         /// <param name="index">WaveStreamのインデックス</param>
-        private static void ReplaceWav(
-            WavFileUnit originalFiles,
+        private void ReplaceWav(
             List<WavFileUnit> replacedFiles,
             bool isSameLength,
             float r2val,
             WaveCompare.ValidComparator comparator,
-            WaveStream[] readers,
             int index)
         {
             for (int i = index + 1; i < replacedFiles.Count; i++)
             {
                 // Ignore replaced wav
-                if (replacedFiles[i].Wav.Num < originalFiles.Wav.Num)
+                if (replacedFiles[i].Wav.Num < _originalFiles[i].Wav.Num)
                 {
                     continue;
                 }
 
                 // Ignore same wav
-                if (replacedFiles[i].Name.Equals(originalFiles.Name))
+                if (replacedFiles[i].Name.Equals(_originalFiles[i].Name))
                 {
                     continue;
                 }
 
                 // Replace wav, if match 2 wavs
-                if (WaveCompare.IsMatch(readers[index], readers[i], isSameLength, r2val, comparator))
+                if (WaveCompare.IsMatch(_readers[index], _readers[i], isSameLength, r2val, comparator))
                 {
-                    replacedFiles[i] = originalFiles;
+                    replacedFiles[i] = _originalFiles[i];
                 }
             }
         }

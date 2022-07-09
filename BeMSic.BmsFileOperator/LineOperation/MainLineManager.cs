@@ -1,5 +1,4 @@
 ﻿using BeMSic.Core.BmsDefinition;
-using BeMSic.Core.Helpers;
 
 namespace BeMSic.BmsFileOperator.LineOperation
 {
@@ -33,7 +32,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
         internal static List<WavDefinition> GetWavDefinition(string line)
         {
             List<WavDefinition> result = new ();
-            MainLineDef mainLine = new (line);
+            MainDefinitionReader mainLine = new (line);
 
             while (mainLine.HasNext())
             {
@@ -63,32 +62,13 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <returns>#MAIN行(#WAV置換後)</returns>
         internal static string ReplaceMainLineWav(string line, List<BmsReplace> replaces)
         {
-            MainLineDef mainLine = new MainLineDef(line);
-            string dest = line[..MainLineDef.DataStart];
+            var mainLine = new MainDefinitionReader(line);
+            string dest = line[..MainDefinitionReader.DataStart];
 
             while (mainLine.HasNext())
             {
                 var next = mainLine.Next();
-
-                // 00は無視
-                if (next == "00")
-                {
-                    dest += next;
-                    continue;
-                }
-
-                var writeVal = new WavDefinition(next);
-
-                foreach (BmsReplace wav in replaces)
-                {
-                    if (writeVal.Equals(wav.NowNum))
-                    {
-                        writeVal = wav.NewNum;
-                        break;
-                    }
-                }
-
-                dest += writeVal.ZZ;
+                dest += GetReplacedDefinition(next, replaces);
             }
 
             return dest;
@@ -121,7 +101,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
         internal static string ShiftBgmLane(string line, int offset)
         {
             string dest = string.Empty;
-            string destHead = line[..MainLineDef.DataStart];
+            string destHead = line[..MainDefinitionReader.DataStart];
 
             for (int i = 0; i < offset; i++)
             {
@@ -133,44 +113,26 @@ namespace BeMSic.BmsFileOperator.LineOperation
             return dest;
         }
 
-        /// <summary>
-        /// MAIN行の#WAVインデックスを1つずつ取り出す
-        /// </summary>
-        private class MainLineDef
+        private static string GetReplacedDefinition(string def, List<BmsReplace> replaces)
         {
-            public const int DataStart = 7;
-            private readonly string _line;
-            private int _pos;
-
-            /// <summary>
-            /// コンストラクタ
-            /// </summary>
-            /// <param name="line">MAIN行</param>
-            public MainLineDef(string line)
+            // 00は無視
+            if (def == "00")
             {
-                _line = line;
-                _pos = DataStart;
+                return def;
             }
 
-            /// <summary>
-            /// 次の#WAV番号を確認
-            /// </summary>
-            /// <returns>次の#WAV番号があればtrue</returns>
-            public bool HasNext()
+            var writeVal = new WavDefinition(def);
+
+            foreach (BmsReplace wav in replaces)
             {
-                return _pos < (_line.Length - 1);
+                if (writeVal.Equals(wav.NowNum))
+                {
+                    writeVal = wav.NewNum;
+                    break;
+                }
             }
 
-            /// <summary>
-            /// 次の#WAV番号を取得
-            /// </summary>
-            /// <returns>#WAV番号</returns>
-            public string Next()
-            {
-                var ret = _line.Substring(_pos, 2);
-                _pos += 2;
-                return ret;
-            }
+            return writeVal.ZZ;
         }
     }
 }

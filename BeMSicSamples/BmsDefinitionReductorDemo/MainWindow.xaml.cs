@@ -1,12 +1,10 @@
 ﻿using BeMSic.BmsFileOperator;
 using BeMSic.Core.BmsDefinition;
-using BeMSic.Core.Helpers;
 using BeMSic.Wave;
 using BmsDefinitionReductorDemo.Class;
 using Microsoft.Win32;
 using NAudio.Wave;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -160,7 +158,8 @@ namespace BmsDefinitionReductor
                 await Task.Run(() =>
                 {
                     var partialFiles = _files.GetPartialWavs(start, end);
-                    var replaces = DefinitionReductor.GetWavReplaces(partialFiles.Get(), _progress, lengthMatchIsChecked, r2Val);
+                    var reductor = new DefinitionReductor(partialFiles.Get());
+                    var replaces = reductor.GetWavReplaces(_progress, lengthMatchIsChecked, r2Val);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();
                     File.WriteAllText(dialog.FileName, _bmsConverter.Bms);

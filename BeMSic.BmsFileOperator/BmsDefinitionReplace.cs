@@ -59,27 +59,28 @@ namespace BeMSic.BmsFileOperator
         public static string GetBgmShiftedBmsFile(string bms, int offset)
         {
             string writeData = string.Empty;
-            string prevLine = "#999";
+            var prevLine = new BmsLine("#999");
 
             using (StringReader sr = new (bms))
             {
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    if (!BmsCommandSearch.IsBgmLine(readLine))
+                    var bmsLine = new BmsLine(readLine);
+                    if (!bmsLine.IsBgm())
                     {
                         writeData += readLine + "\n";
                         continue;
                     }
 
-                    if (BmsCommandSearch.IsSameBar(readLine, prevLine))
+                    if (bmsLine.IsSameBar(prevLine))
                     {
                         writeData += readLine + "\n";
                         continue;
                     }
 
                     writeData += BmsManager.ShiftBgmLine(readLine, offset) + "\n";
-                    prevLine = readLine;
+                    prevLine = bmsLine;
                 }
             }
 
@@ -101,9 +102,10 @@ namespace BeMSic.BmsFileOperator
             {
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    if (BmsCommandSearch.GetLineCommand(readLine) == BmsCommandSearch.BmsCommand.WAV)
+                    var bmsLine = new BmsLine(readLine);
+                    if (bmsLine.IsWav())
                     {
-                        int index = wavs.IndexOf(new WavDefinition(readLine.Substring(4, 2)));
+                        int index = wavs.IndexOf(bmsLine.GetCommandNumber());
                         if (index == -1)
                         {
                             continue;
@@ -244,14 +246,11 @@ namespace BeMSic.BmsFileOperator
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    switch (BmsCommandSearch.GetLineCommand(readLine))
-                    {
-                        case BmsCommandSearch.BmsCommand.WAV:
-                            writeData += readLine + "\n";
-                            break;
+                    var bmsLine = new BmsLine(readLine);
 
-                        default:
-                            break;
+                    if (bmsLine.IsWav())
+                    {
+                        writeData += readLine + "\n";
                     }
                 }
             }
@@ -282,21 +281,17 @@ namespace BeMSic.BmsFileOperator
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    switch (BmsCommandSearch.GetLineCommand(readLine))
+                    var bmsLine = new BmsLine(readLine);
+                    if (bmsLine.IsMain() || bmsLine.IsMainNotObject())
                     {
-                        case BmsCommandSearch.BmsCommand.MAIN:
-                        case BmsCommandSearch.BmsCommand.MAIN_NOTOBJ:
-                            isMainLine = true;
-                            writeData += MainLineManager.OffsetMainLineBar(readLine, maxLine) + "\n";
-                            break;
+                        isMainLine = true;
+                        writeData += MainLineManager.OffsetMainLineBar(readLine, maxLine) + "\n";
+                        continue;
+                    }
 
-                        default:
-                            if (isMainLine)
-                            {
-                                writeData += readLine + "\n";
-                            }
-
-                            break;
+                    if (isMainLine)
+                    {
+                        writeData += readLine + "\n";
                     }
                 }
             }
