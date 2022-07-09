@@ -6,18 +6,28 @@ namespace BeMSic.BmsFileOperator.LineOperation
     /// <summary>
     /// #WAV行操作
     /// </summary>
-    internal class WavLineManager
+    internal class WavLine
     {
+        private string _line;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="line">行</param>
+        public WavLine(string line)
+        {
+            _line = line;
+        }
+
         /// <summary>
         /// #WAV行の#WAVインデックスをoffsetの分加算した行を返す
         /// </summary>
-        /// <param name="line">#WAV行</param>
         /// <param name="wavs">#WAV番号一覧</param>
         /// <param name="offset">ずらす数</param>
         /// <returns>ずらした後の#WAV行</returns>
-        internal static string OffsetWavLineDefinition(string line, List<WavDefinition> wavs, int offset)
+        internal string OffsetWavLineDefinition(List<WavDefinition> wavs, int offset)
         {
-            WavDefinition lineDefinition = new WavDefinition(line.Substring(4, 2));
+            WavDefinition lineDefinition = new WavDefinition(_line.Substring(4, 2));
 
             foreach (var replace in wavs)
             {
@@ -25,7 +35,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
                 if (replace.Equals(lineDefinition))
                 {
                     var offsetedWav = new WavDefinition(replace.Num + offset);
-                    return $"#WAV{offsetedWav.ZZ}{line[6..]}";
+                    return $"#WAV{offsetedWav.ZZ}{_line[6..]}";
                 }
             }
 
@@ -35,29 +45,27 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <summary>
         /// #WAV定義をreplacesで置換する
         /// </summary>
-        /// <param name="line">#WAV行</param>
         /// <param name="replaces">置換テーブル</param>
         /// <returns>置換後#WAV行</returns>
-        internal static string ReplaceWavLineDefinition(string line, List<BmsReplace> replaces)
+        internal string ReplaceWavLineDefinition(List<BmsReplace> replaces)
         {
-            WavDefinition nowWav = new WavDefinition(RadixConvert.ZZToInt(line.Substring(4, 2)));
+            WavDefinition nowWav = new WavDefinition(RadixConvert.ZZToInt(_line.Substring(4, 2)));
             BmsReplace? replace = replaces.Find(x => x.NowNum.Num == nowWav.Num);
             if (replace == null)
             {
-                return line;
+                return _line;
             }
 
-            return $"#WAV{replace.NewNum.ZZ}{line[6..]}";
+            return $"#WAV{replace.NewNum.ZZ}{_line[6..]}";
         }
 
         /// <summary>
         /// #WAVコマンド行から#WAVインデックスとwavファイル名を取得する
         /// </summary>
-        /// <param name="line">#WAV行</param>
         /// <returns>#WAVデータ</returns>
-        internal static WavFileUnit GetWavData(string line)
+        internal WavFileUnit GetWavData()
         {
-            string[] arr = line.Split(new[] { ' ' }, 2);
+            string[] arr = _line.Split(new[] { ' ' }, 2);
             return new WavFileUnit(RadixConvert.ZZToInt(arr[0].Substring(4, 2)), arr[1]);
         }
     }

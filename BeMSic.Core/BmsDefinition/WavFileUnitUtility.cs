@@ -10,26 +10,46 @@ namespace BeMSic.Core.BmsDefinition
     {
         private List<WavFileUnit> _files;
 
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
         public WavFileUnitUtility()
         {
             _files = new List<WavFileUnit>();
         }
 
+        /// <summary>
+        /// WAVファイル情報追加
+        /// </summary>
+        /// <param name="num">#WAV番号</param>
+        /// <param name="name">ファイル名</param>
         public void Add(int num, string name)
         {
             _files.Add(new WavFileUnit(num, name));
         }
 
+        /// <summary>
+        /// WAVファイル情報追加
+        /// </summary>
+        /// <param name="wav">#WAV情報</param>
         public void Add(WavFileUnit wav)
         {
             _files.Add(wav);
         }
 
+        /// <summary>
+        /// #WAV定義数を返す
+        /// </summary>
+        /// <returns>#WAV定義数</returns>
         public int Count()
         {
             return _files.Count;
         }
 
+        /// <summary>
+        /// #WAVリストを返す
+        /// </summary>
+        /// <returns>#WAVリスト</returns>
         public ImmutableArray<WavFileUnit> Get()
         {
             return _files.ToImmutableArray();

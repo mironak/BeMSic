@@ -7,9 +7,6 @@ namespace BeMSic.Core.BmsDefinition
     /// </summary>
     public class WavDefinition : IEquatable<WavDefinition>, IComparable<WavDefinition>
     {
-        public readonly int Num;
-        public readonly string ZZ;
-
         /// <summary>
         /// コンストラクタ
         /// </summary>
@@ -43,6 +40,16 @@ namespace BeMSic.Core.BmsDefinition
         }
 
         /// <summary>
+        /// #WAV(整数値)
+        /// </summary>
+        public int Num { get; }
+
+        /// <summary>
+        /// #WAV(ZZ文字列)
+        /// </summary>
+        public string ZZ { get; }
+
+        /// <summary>
         /// 等価演算
         /// </summary>
         /// <param name="other">other</param>
@@ -55,6 +62,21 @@ namespace BeMSic.Core.BmsDefinition
             }
 
             return Num == other.Num;
+        }
+
+        /// <summary>
+        /// 比較
+        /// </summary>
+        /// <param name="other">他インスタンス</param>
+        /// <returns>比較値</returns>
+        public int CompareTo(WavDefinition? other)
+        {
+            if (other == null)
+            {
+                return int.MinValue;
+            }
+
+            return Num - other.Num;
         }
 
         /// <summary>
@@ -75,16 +97,6 @@ namespace BeMSic.Core.BmsDefinition
             }
 
             return true;
-        }
-
-        public int CompareTo(WavDefinition? other)
-        {
-            if (other == null)
-            {
-                return int.MinValue;
-            }
-
-            return Num - other.Num;
         }
     }
 }

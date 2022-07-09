@@ -47,7 +47,8 @@ namespace BeMSic.BmsFileOperator
 
                     if (bmsLine.IsWav())
                     {
-                        wavFiles.Add(WavLineManager.GetWavData(line));
+                        var wavData = new WavLine(line);
+                        wavFiles.Add(wavData.GetWavData());
                     }
                 }
             }

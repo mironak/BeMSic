@@ -8,6 +8,7 @@ namespace BeMSic.BmsFileOperator
     public sealed class BmsConverter
     {
         private string _bms;
+        private BmsDefinitionReplace _bmsDefinitionReplace;
 
         /// <summary>
         /// コンストラクタ
@@ -21,6 +22,7 @@ namespace BeMSic.BmsFileOperator
             }
 
             _bms = bms;
+            _bmsDefinitionReplace = new BmsDefinitionReplace(bms);
         }
 
         /// <summary>
@@ -37,7 +39,8 @@ namespace BeMSic.BmsFileOperator
         /// <returns>BmsConverter</returns>
         public BmsConverter DeleteUnusedWav()
         {
-            _bms = BmsDefinitionReplace.GetUnusedWavDeletedBmsFile(_bms);
+            _bms = _bmsDefinitionReplace.GetUnusedWavDeletedBmsFile();
+            _bmsDefinitionReplace = new BmsDefinitionReplace(_bms);
             return this;
         }
 
@@ -47,7 +50,8 @@ namespace BeMSic.BmsFileOperator
         /// <returns>BmsConverter</returns>
         public BmsConverter ArrangeWav()
         {
-            _bms = BmsDefinitionReplace.GetWavArrangedBmsFile(_bms);
+            _bms = _bmsDefinitionReplace.GetWavArrangedBmsFile();
+            _bmsDefinitionReplace = new BmsDefinitionReplace(_bms);
             return this;
         }
 
@@ -58,7 +62,8 @@ namespace BeMSic.BmsFileOperator
         /// <returns>BmsConverter</returns>
         public BmsConverter Offset(int offset)
         {
-            _bms = BmsDefinitionReplace.GetOffsetedBmsFile(_bms, offset);
+            _bms = _bmsDefinitionReplace.GetOffsetedBmsFile(offset);
+            _bmsDefinitionReplace = new BmsDefinitionReplace(_bms);
             return this;
         }
 
@@ -69,7 +74,8 @@ namespace BeMSic.BmsFileOperator
         /// <returns>BmsConverter</returns>
         public BmsConverter Shift(int offset)
         {
-            _bms = BmsDefinitionReplace.GetBgmShiftedBmsFile(_bms, offset);
+            _bms = _bmsDefinitionReplace.GetBgmShiftedBmsFile(offset);
+            _bmsDefinitionReplace = new BmsDefinitionReplace(_bms);
             return this;
         }
 
@@ -80,7 +86,7 @@ namespace BeMSic.BmsFileOperator
         //// <returns>BmsConverter</returns>
         ////public BmsConverter AddRange(BmsConverter bms)
         ////{
-        //    _bms = BmsDefinitionReplace.GetMargedBms(_bms, bms.Bms);
+        //    _bms = _bmsDefinitionReplace.GetMargedBms(bms.Bms);
         //    return this;
         ////}
 
@@ -91,7 +97,8 @@ namespace BeMSic.BmsFileOperator
         /// <returns>BmsConverter</returns>
         public BmsConverter Replace(List<BmsReplace> replaces)
         {
-            _bms = BmsDefinitionReplace.GetReplacedBmsFile(_bms, replaces);
+            _bms = _bmsDefinitionReplace.GetReplacedBmsFile(replaces);
+            _bmsDefinitionReplace = new BmsDefinitionReplace(_bms);
             return this;
         }
     }

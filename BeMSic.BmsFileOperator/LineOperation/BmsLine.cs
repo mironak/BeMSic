@@ -1,5 +1,5 @@
-﻿using BeMSic.Core.BmsDefinition;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using BeMSic.Core.BmsDefinition;
 
 namespace BeMSic.BmsFileOperator.LineOperation
 {
@@ -8,10 +8,23 @@ namespace BeMSic.BmsFileOperator.LineOperation
     /// </summary>
     internal class BmsLine
     {
+        private readonly string _line;
+        private readonly BmsCommand _command;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="line">行</param>
+        internal BmsLine(string line)
+        {
+            _line = line;
+            _command = GetLineCommand();
+        }
+
         /// <summary>
         /// BMSコマンド
         /// </summary>
-        internal enum BmsCommand
+        private enum BmsCommand
         {
             NONE,
             WAV,
@@ -19,37 +32,44 @@ namespace BeMSic.BmsFileOperator.LineOperation
             MAIN_NOTOBJ,
         }
 
-        private string _line;
-        internal readonly BmsCommand Command;
-
-        internal BmsLine(string line)
-        {
-            _line = line;
-            Command = GetLineCommand();
-        }
-
+        /// <summary>
+        /// 行が#WAVかを確認
+        /// </summary>
+        /// <returns>#WAVならtrue</returns>
         internal bool IsWav()
         {
-            return Command == BmsCommand.WAV;
+            return _command == BmsCommand.WAV;
         }
 
+        /// <summary>
+        /// 行がMAINかを確認
+        /// </summary>
+        /// <returns>MAINならtrue</returns>
         internal bool IsMain()
         {
-            return Command == BmsCommand.MAIN;
+            return _command == BmsCommand.MAIN;
         }
 
+        /// <summary>
+        /// 行がMAIN(オブジェクト以外)かを確認
+        /// </summary>
+        /// <returns>#WAVならtrue</returns>
         internal bool IsMainNotObject()
         {
-            return IsMainNotObj();
+            return _command == BmsCommand.MAIN_NOTOBJ;
         }
 
+        /// <summary>
+        /// 行がBGMレーンかを確認
+        /// </summary>
+        /// <returns>BGMレーンならtrue</returns>
         internal bool IsBgm()
         {
             return IsBgmLine();
         }
 
         /// <summary>
-        /// 同じ小節ならtrue
+        /// 同じ小節かを確認
         /// </summary>
         /// <param name="otherLine">.bms file text line</param>
         /// <returns>同じ小節ならtrue</returns>
@@ -75,7 +95,11 @@ namespace BeMSic.BmsFileOperator.LineOperation
             return true;
         }
 
-        internal WavDefinition GetCommandNumber()
+        /// <summary>
+        /// #WAVの番号を取得
+        /// </summary>
+        /// <returns>#WAV番号</returns>
+        internal WavDefinition GetWavNumber()
         {
             return new WavDefinition(_line.Substring(4, 2));
         }
@@ -83,8 +107,8 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <summary>
         /// 小節番号を取得
         /// </summary>
-        /// <param name="result"></param>
-        /// <returns></returns>
+        /// <param name="result">小節番号戻り先</param>
+        /// <returns>取得成功ならtrue</returns>
         internal bool TryGetBar(out int result)
         {
             result = 0;
@@ -134,9 +158,9 @@ namespace BeMSic.BmsFileOperator.LineOperation
         }
 
         /// <summary>
-        /// lineがMAIN行(BGMか譜面レーン)ならtrue
+        /// 行がMAIN行(BGMか譜面レーン)かを確認
         /// </summary>
-        /// <returns>lineがMAIN行ならtrue</returns>
+        /// <returns>行がMAIN行ならtrue</returns>
         private bool IsMainLine()
         {
             Regex rgxMain = new (@"^#[0-9][0-9][0-9]", RegexOptions.IgnoreCase);
@@ -157,9 +181,9 @@ namespace BeMSic.BmsFileOperator.LineOperation
         }
 
         /// <summary>
-        /// lineがMAIN行(BGMか譜面レーン以外)ならtrueを返す
+        /// 行がMAIN行(BGMか譜面レーン以外)かを確認
         /// </summary>
-        /// <returns>lineがMAIN行(BGMか譜面レーン以外)ならtrue</returns>
+        /// <returns>行がMAIN行(BGMか譜面レーン以外)ならtrue</returns>
         private bool IsMainNotObj()
         {
             Regex rgxMain = new (@"^#[0-9][0-9][0-9]", RegexOptions.IgnoreCase);
@@ -182,9 +206,9 @@ namespace BeMSic.BmsFileOperator.LineOperation
         }
 
         /// <summary>
-        /// lineが#WAV行ならtrue
+        /// 行が#WAV行かを確認
         /// </summary>
-        /// <returns>lineが#WAV行ならtrue</returns>
+        /// <returns>行が#WAV行ならtrue</returns>
         private bool IsWavLine()
         {
             Regex rgxWav = new (@"^#WAV", RegexOptions.IgnoreCase);
@@ -197,9 +221,9 @@ namespace BeMSic.BmsFileOperator.LineOperation
         }
 
         /// <summary>
-        /// lineがMAIN行(BGM)ならtrueを返す
+        /// 行がMAIN行(BGM)かを確認
         /// </summary>
-        /// <returns>lineがMAIN行(BGMか譜面レーン以外)ならtrue</returns>
+        /// <returns>行がMAIN行(BGM)ならtrue</returns>
         private bool IsBgmLine()
         {
             Regex rgxMain = new (@"^#[0-9][0-9][0-9]", RegexOptions.IgnoreCase);
@@ -215,6 +239,10 @@ namespace BeMSic.BmsFileOperator.LineOperation
             return false;
         }
 
+        /// <summary>
+        /// 行がBGMかを確認
+        /// </summary>
+        /// <returns>BGMならtrue</returns>
         private bool IsBgmCommand()
         {
             if ((_line[4] == '0') && (_line[5] == '1'))
@@ -225,6 +253,10 @@ namespace BeMSic.BmsFileOperator.LineOperation
             return false;
         }
 
+        /// <summary>
+        /// 行が譜面かを確認
+        /// </summary>
+        /// <returns>譜面ならtrue</returns>
         private bool IsPatternCommand()
         {
             if (_line[4] is '1' or '2' or '5' or '6')

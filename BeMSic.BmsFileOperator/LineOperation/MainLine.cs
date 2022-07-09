@@ -5,34 +5,43 @@ namespace BeMSic.BmsFileOperator.LineOperation
     /// <summary>
     /// MAIN行操作
     /// </summary>
-    internal static class MainLineManager
+    internal class MainLine
     {
+        private string _line;
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="line">行</param>
+        public MainLine(string line)
+        {
+            _line = line;
+        }
+
         /// <summary>
         /// 小節番号をoffsetの分後ろにずらす
         /// </summary>
-        /// <param name="line">Line in .bms file</param>
         /// <param name="offset">Old #WAV List</param>
         /// <returns>小節番号をずらした行</returns>
-        internal static string OffsetMainLineBar(string line, int offset)
+        internal string OffsetMainLineBar(int offset)
         {
-            bool success = int.TryParse(line.AsSpan(1, 3), out int num);
+            bool success = int.TryParse(_line.AsSpan(1, 3), out int num);
             if (!success)
             {
                 return string.Empty;
             }
 
-            return $"#{num + offset:D3}{line[4..]}";
+            return $"#{num + offset:D3}{_line[4..]}";
         }
 
         /// <summary>
         /// MAIN行1行に含まれる#WAV定義一覧を返す
         /// </summary>
-        /// <param name="line">MAIN行</param>
         /// <returns>#WAV定義一覧</returns>
-        internal static List<WavDefinition> GetWavDefinition(string line)
+        internal List<WavDefinition> GetWavDefinition()
         {
             List<WavDefinition> result = new ();
-            MainDefinitionReader mainLine = new (line);
+            MainDefinitionReader mainLine = new (_line);
 
             while (mainLine.HasNext())
             {
@@ -57,13 +66,12 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <summary>
         /// #MAIN行の#WAV番号を置換する
         /// </summary>
-        /// <param name="line">#MAIN行</param>
         /// <param name="replaces">置換テーブル</param>
         /// <returns>#MAIN行(#WAV置換後)</returns>
-        internal static string ReplaceMainLineWav(string line, List<BmsReplace> replaces)
+        internal string ReplaceMainLineWav(List<BmsReplace> replaces)
         {
-            var mainLine = new MainDefinitionReader(line);
-            string dest = line[..MainDefinitionReader.DataStart];
+            var mainLine = new MainDefinitionReader(_line);
+            string dest = _line[..MainDefinitionReader.DataStart];
 
             while (mainLine.HasNext())
             {
@@ -77,11 +85,10 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <summary>
         /// #MAIN行の#WAV番号をoffsetの分増やす
         /// </summary>
-        /// <param name="line">#MAIN行</param>
         /// <param name="wavs">#WAV一覧</param>
         /// <param name="offset">増分</param>
         /// <returns>#MAIN行(#WAVずらし後)</returns>
-        internal static string OffsetMainLineDefinition(string line, List<WavDefinition> wavs, int offset)
+        internal string OffsetMainLineDefinition(List<WavDefinition> wavs, int offset)
         {
             List<BmsReplace> offsetedWavs = new ();
             foreach (var wav in wavs)
@@ -89,26 +96,25 @@ namespace BeMSic.BmsFileOperator.LineOperation
                 offsetedWavs.Add(new BmsReplace(wav, new WavDefinition(wav.Num + offset)));
             }
 
-            return ReplaceMainLineWav(line, offsetedWavs);
+            return ReplaceMainLineWav(offsetedWavs);
         }
 
         /// <summary>
         /// BGM行をoffsetの分右にずらす
         /// </summary>
-        /// <param name="line">#MAIN行</param>
         /// <param name="offset">増分</param>
         /// <returns>#MAIN行(ずらし後)</returns>
-        internal static string ShiftBgmLane(string line, int offset)
+        internal string ShiftBgmLane(int offset)
         {
             string dest = string.Empty;
-            string destHead = line[..MainDefinitionReader.DataStart];
+            string destHead = _line[..MainDefinitionReader.DataStart];
 
             for (int i = 0; i < offset; i++)
             {
                 dest += destHead + "00\n";
             }
 
-            dest += line;
+            dest += _line;
 
             return dest;
         }

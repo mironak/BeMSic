@@ -13,8 +13,8 @@ namespace BeMSic.Bmson
         private readonly WavFileUnitUtility _wavs;           // #WAV
         private readonly int _soundIndex;
         private readonly BmsonFormat _bmson;
-        private readonly StringBuilder _builder = new　();
-        private readonly List<int> _notesWavIndices = new();
+        private readonly StringBuilder _builder = new ();
+        private readonly List<int> _notesWavIndices = new ();
         private List<double> _exbpms = new ();              // 拡張BPM
         private bool _isBgmOnly;
 

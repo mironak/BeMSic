@@ -11,7 +11,11 @@ namespace BeMSic.Core.BmsDefinition
     /// </summary>
     internal class MainDefinitionReader
     {
+        /// <summary>
+        /// データ開始位置
+        /// </summary>
         internal const int DataStart = 7;
+
         private readonly string _line;
         private int _pos;
 

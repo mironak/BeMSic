@@ -158,8 +158,8 @@ namespace BmsDefinitionReductor
                 await Task.Run(() =>
                 {
                     var partialFiles = _files.GetPartialWavs(start, end);
-                    var reductor = new DefinitionReductor(partialFiles.Get());
-                    var replaces = reductor.GetWavReplaces(_progress, lengthMatchIsChecked, r2Val);
+                    var reductor = new DefinitionReductor(partialFiles.Get(), lengthMatchIsChecked, r2Val);
+                    var replaces = reductor.GetWavReplaces(_progress);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();
                     File.WriteAllText(dialog.FileName, _bmsConverter.Bms);
