@@ -25,18 +25,14 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <param name="wavs">#WAV番号一覧</param>
         /// <param name="offset">ずらす数</param>
         /// <returns>ずらした後の#WAV行</returns>
-        internal string OffsetWavLineDefinition(List<WavDefinition> wavs, int offset)
+        internal string OffsetWavLineDefinition(WavDefinitions wavs, int offset)
         {
             WavDefinition lineDefinition = new WavDefinition(_line.Substring(4, 2));
 
-            foreach (var replace in wavs)
+            if (wavs.Contains(lineDefinition))
             {
-                // To go next wav, if it is not replaced.
-                if (replace.Equals(lineDefinition))
-                {
-                    var offsetedWav = new WavDefinition(replace.Num + offset);
-                    return $"#WAV{offsetedWav.ZZ}{_line[6..]}";
-                }
+                var offsetedWav = new WavDefinition(lineDefinition.Num + offset);
+                return $"#WAV{offsetedWav.ZZ}{_line[6..]}";
             }
 
             return string.Empty;

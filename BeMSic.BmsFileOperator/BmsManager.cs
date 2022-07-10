@@ -42,7 +42,7 @@ namespace BeMSic.BmsFileOperator
         /// <param name="wavs">#WAV番号一覧</param>
         /// <param name="offset">ずらす数</param>
         /// <returns>ずらした後のBMSテキスト行</returns>
-        public string OffsettedLineDefinition(List<WavDefinition> wavs, int offset)
+        public string OffsettedLineDefinition(WavDefinitions wavs, int offset)
         {
             var bmsLine = new BmsLine(_line);
             if (bmsLine.IsMain())
@@ -66,13 +66,14 @@ namespace BeMSic.BmsFileOperator
         /// </summary>
         /// <param name="nowWavs">残す#WAV番号一覧</param>
         /// <returns>詰めた後のBMSテキスト行</returns>
-        public string GetArrangedLine(List<WavDefinition> nowWavs)
+        public string GetArrangedLine(WavDefinitions nowWavs)
         {
             List<BmsReplace> replaceList = new ();
-            for (int i = 0; i < nowWavs.Count; i++)
+            int index = 1;
+            foreach (var wav in nowWavs.GetUnit())
             {
-                var newWav = new WavDefinition(i + 1);
-                replaceList.Add(new BmsReplace(nowWavs[i], newWav));
+                var newWav = new WavDefinition(index++);
+                replaceList.Add(new BmsReplace(wav, newWav));
             }
 
             var bmsLine = new BmsLine(_line);
@@ -103,12 +104,12 @@ namespace BeMSic.BmsFileOperator
         /// MAIN行1行に含まれる#WAV定義一覧を返す
         /// </summary>
         /// <returns>行内の#WAV番号一覧</returns>
-        public List<WavDefinition> GetLineDefinition()
+        public WavDefinitions GetLineDefinition()
         {
             var bmsLine = new BmsLine(_line);
             if (!bmsLine.IsMain())
             {
-                return new List<WavDefinition>();
+                return new WavDefinitions();
             }
 
             var mainLine = new MainLine(_line);

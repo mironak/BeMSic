@@ -96,8 +96,8 @@ namespace BmsShifter
 
                 bmsConverter.DeleteUnusedWav().ArrangeWav();
                 var replace = new BmsDefinitionReplace(bmsConverter.Bms);
-                List<WavDefinition> wavs = replace.GetUsedWavList();
-                WavStartTextBox.Text = RadixConvert.IntToZZ(wavs.Max(x => x.Num));
+                WavDefinitions wavs = replace.GetUsedWavList();
+                WavStartTextBox.Text = wavs.GetMax().ZZ;
             }
             catch
             {

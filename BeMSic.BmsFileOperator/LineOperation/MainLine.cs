@@ -38,9 +38,9 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// MAIN行1行に含まれる#WAV定義一覧を返す
         /// </summary>
         /// <returns>#WAV定義一覧</returns>
-        internal List<WavDefinition> GetWavDefinition()
+        internal WavDefinitions GetWavDefinition()
         {
-            List<WavDefinition> result = new ();
+            var result = new WavDefinitions();
             MainDefinitionReader mainLine = new (_line);
 
             while (mainLine.HasNext())
@@ -88,10 +88,10 @@ namespace BeMSic.BmsFileOperator.LineOperation
         /// <param name="wavs">#WAV一覧</param>
         /// <param name="offset">増分</param>
         /// <returns>#MAIN行(#WAVずらし後)</returns>
-        internal string OffsetMainLineDefinition(List<WavDefinition> wavs, int offset)
+        internal string OffsetMainLineDefinition(WavDefinitions wavs, int offset)
         {
             List<BmsReplace> offsetedWavs = new ();
-            foreach (var wav in wavs)
+            foreach (var wav in wavs.GetUnit())
             {
                 offsetedWavs.Add(new BmsReplace(wav, new WavDefinition(wav.Num + offset)));
             }
