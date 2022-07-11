@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using BeMSic.Core.Helpers;
 
 namespace BeMSic.Core.BmsDefinition
 {
@@ -38,21 +37,24 @@ namespace BeMSic.Core.BmsDefinition
         }
 
         /// <summary>
-        /// #WAV定義数を返す
+        /// WAVを順に返す
         /// </summary>
-        /// <returns>#WAV定義数</returns>
-        public int Count()
+        /// <returns>#WAV番号</returns>
+        public IEnumerable<WavFileUnit> GetUnit()
         {
-            return _files.Count;
+            for (int i = 0; i < _files.Count; i++)
+            {
+                yield return _files[i];
+            }
         }
 
         /// <summary>
-        /// #WAVリストを返す
+        /// ファイル数取得
         /// </summary>
-        /// <returns>#WAVリスト</returns>
-        public ImmutableArray<WavFileUnit> Get()
+        /// <returns>ファイル数</returns>
+        public int Count()
         {
-            return _files.ToImmutableArray();
+            return _files.Count;
         }
 
         /// <summary>

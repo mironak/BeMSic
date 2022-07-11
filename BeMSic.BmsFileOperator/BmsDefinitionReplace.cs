@@ -320,10 +320,10 @@ namespace BeMSic.BmsFileOperator
         /// <returns>#WAV番号一覧</returns>
         private WavDefinitions GetWavIndexes()
         {
-            var wavs = FileList.GetWavsRelativePath(_bms).Get();
+            var wavs = FileList.GetWavsRelativePath(_bms);
 
             var wavFiles = new WavDefinitions();
-            foreach (WavFileUnit wav in wavs)
+            foreach (WavFileUnit wav in wavs.GetUnit())
             {
                 wavFiles.Add(wav.Wav);
             }

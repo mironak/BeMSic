@@ -15,14 +15,16 @@ namespace BeMSicTests
             }
 
             // partials: 101, 106, 111, ... 196
-            var partials = files.GetPartialWavs(new WavDefinition(100), new WavDefinition(200)).Get();
+            var partials = files.GetPartialWavs(new WavDefinition(100), new WavDefinition(200));
 
-            for(int i = 0; i < partials.Length; i++)
+            int unitNum = 0;
+            foreach (var wav in partials.GetUnit())
             {
-                Assert.Equal(i * 5 + 101, partials[i].Wav.Num);
+                Assert.Equal(unitNum * 5 + 101, wav.Wav.Num);
+                unitNum++;
             }
 
-            Assert.Equal(20, partials.Length);
+            Assert.Equal(20, unitNum);
         }
     }
 }

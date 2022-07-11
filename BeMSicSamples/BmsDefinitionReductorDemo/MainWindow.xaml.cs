@@ -82,7 +82,7 @@ namespace BmsDefinitionReductor
                 _bmsConverter = new BmsConverter(bms);
                 _files = FileList.GetWavsFullPath(_bmsConverter.Bms, bmsDirectory);
 
-                FilesListView.ItemsSource = GetDisplayedValuesList(_files.Get());
+                FilesListView.ItemsSource = GetDisplayedValuesList(_files);
                 DefinitionReductButton.IsEnabled = true;
             }
             catch
@@ -158,7 +158,7 @@ namespace BmsDefinitionReductor
                 await Task.Run(() =>
                 {
                     var partialFiles = _files.GetPartialWavs(start, end);
-                    var reductor = new DefinitionReductor(partialFiles.Get(), lengthMatchIsChecked, r2Val);
+                    var reductor = new DefinitionReductor(partialFiles, lengthMatchIsChecked, r2Val);
                     var replaces = reductor.GetWavReplaces(_progress);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();
@@ -214,11 +214,11 @@ namespace BmsDefinitionReductor
         /// </summary>
         /// <param name="fileListBase"></param>
         /// <returns></returns>
-        private static ObservableCollection<WavFileUnitEx> GetDisplayedValuesList(ImmutableArray<WavFileUnit> fileListBase)
+        private static ObservableCollection<WavFileUnitEx> GetDisplayedValuesList(WavFileUnitUtility fileListBase)
         {
             ObservableCollection<WavFileUnitEx> fileList = new ObservableCollection<WavFileUnitEx>();
 
-            foreach (var file in fileListBase)
+            foreach (var file in fileListBase.GetUnit())
             {
                 fileList.Add(new WavFileUnitEx(file));
             }

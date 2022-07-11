@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+﻿using System.Linq;
 using BeMSic.Core.BmsDefinition;
 using BeMSic.Wave.FileOperation;
 using BeMSic.Wave.Validators;
@@ -11,8 +11,8 @@ namespace BeMSic.Wave
     /// </summary>
     public class DefinitionReductor
     {
-        private readonly ImmutableArray<WavFileUnit> _originalFiles;
-        private readonly WaveStream[] _readers;
+        private readonly WavFileUnitUtility _originalFiles;
+        private readonly List<WaveStream> _readers;
         private readonly bool _isSameLength;
         private readonly float _r2val;
         private readonly WaveCompare.ValidComparator _comparator;
@@ -24,7 +24,7 @@ namespace BeMSic.Wave
         /// <param name="isSameLength">同じ長さのみ比較する場合はtrue</param>
         /// <param name="r2val">相関係数</param>
         /// <param name="comparator">比較関数</param>
-        public DefinitionReductor(ImmutableArray<WavFileUnit> originalFiles, bool isSameLength, float r2val, WaveCompare.ValidComparator comparator)
+        public DefinitionReductor(WavFileUnitUtility originalFiles, bool isSameLength, float r2val, WaveCompare.ValidComparator comparator)
         {
             _originalFiles = originalFiles;
             _readers = PreserveWavFileReader(_originalFiles);
@@ -40,7 +40,7 @@ namespace BeMSic.Wave
         /// <param name="isSameLength">同じ長さのみ比較する場合はtrue</param>
         /// <param name="r2val">相関係数</param>
         /// <param name="comparator">比較関数</param>
-        public DefinitionReductor(ImmutableArray<WavFileUnit> originalFiles, bool isSameLength, float r2val)
+        public DefinitionReductor(WavFileUnitUtility originalFiles, bool isSameLength, float r2val)
             : this(originalFiles, isSameLength, r2val, WaveValidation.CalculateRSquared)
         {
         }
@@ -49,7 +49,7 @@ namespace BeMSic.Wave
         /// コンストラクタ
         /// </summary>
         /// <param name="originalFiles">ファイル一覧</param>
-        public DefinitionReductor(ImmutableArray<WavFileUnit> originalFiles)
+        public DefinitionReductor(WavFileUnitUtility originalFiles)
             : this(originalFiles, true, 90, WaveValidation.CalculateRSquared)
         {
         }
@@ -59,19 +59,20 @@ namespace BeMSic.Wave
         /// </summary>
         /// <param name="progress">IProgress</param>
         /// <returns>置換テーブル</returns>
-        public List<WavFileUnit> GetReplacedTable(
+        public WavFileUnitUtility GetReplacedTable(
             IProgress<int> progress)
         {
             progress.Report(0);
 
-            List<WavFileUnit> replacedFiles = new (_originalFiles);
+            WavFileUnitUtility replacedFiles = _originalFiles;
 
             // Compare wavs
-            for (int i = 0; i < _originalFiles.Length; i++)
+            int i = 0;
+            foreach (var wav in _originalFiles.GetUnit())
             {
-                ReplaceWav(replacedFiles, i);
+                replacedFiles = ReplaceWav(replacedFiles, i);
 
-                progress.Report((int)((float)i / _originalFiles.Length * 100));
+                progress.Report((int)((float)i / _originalFiles.Count() * 100));
             }
 
             progress.Report(100);
@@ -86,11 +87,13 @@ namespace BeMSic.Wave
         public List<BmsReplace> GetWavReplaces(IProgress<int> progress)
         {
             List<BmsReplace> replaces = new ();
-            List<WavFileUnit> replaced = GetReplacedTable(progress);
+            WavFileUnitUtility replaced = GetReplacedTable(progress);
 
-            for (int i = 0; i < _originalFiles.Length; i++)
+            var units = _originalFiles.GetUnit().Zip(replaced.GetUnit());
+
+            foreach (var unit in units)
             {
-                replaces.Add(new BmsReplace(_originalFiles[i].Wav, replaced[i].Wav));
+                replaces.Add(new BmsReplace(unit.First.Wav, unit.Second.Wav));
             }
 
             return replaces;
@@ -101,15 +104,16 @@ namespace BeMSic.Wave
         /// </summary>
         /// <param name="wavFileUnits">#WAV一覧(絶対パス)</param>
         /// <returns>WaveStream</returns>
-        private static WaveStream[] PreserveWavFileReader(ImmutableArray<WavFileUnit> wavFileUnits)
+        private static List<WaveStream> PreserveWavFileReader(WavFileUnitUtility wavFileUnits)
         {
-            WaveStream[] readers = new WaveStream[wavFileUnits.Length];
-            for (int i = 0; i < wavFileUnits.Length; i++)
+            List<WaveStream> readers = new List<WaveStream>();
+
+            foreach (var wav in wavFileUnits.GetUnit())
             {
-                WaveStream? reader = WaveIO.GetWaveStream(wavFileUnits[i].Name);
+                WaveStream? reader = WaveIO.GetWaveStream(wav.Name);
                 if (reader != null)
                 {
-                    readers[i] = reader;
+                    readers.Add(reader);
                 }
             }
 
@@ -121,28 +125,41 @@ namespace BeMSic.Wave
         /// </summary>
         /// <param name="replacedFiles">置換リスト</param>
         /// <param name="index">WaveStreamのインデックス</param>
-        private void ReplaceWav(List<WavFileUnit> replacedFiles, int index)
+        private WavFileUnitUtility ReplaceWav(WavFileUnitUtility replacedFiles, int index)
         {
-            for (int i = index + 1; i < replacedFiles.Count; i++)
+            int i = 0;
+            var replaces = new WavFileUnitUtility();
+
+            foreach (var replace in replacedFiles.GetUnit())
             {
-                // Ignore replaced wav
-                if (replacedFiles[i].Wav.Num < _originalFiles[i].Wav.Num)
+                WavFileUnit rep = replace;
+
+                foreach (var wav in _originalFiles.GetUnit())
                 {
-                    continue;
+                    // 置換済みは無視
+                    if (replace.Wav.Num < wav.Wav.Num)
+                    {
+                        continue;
+                    }
+
+                    // 同じWAVは無視(多重定義を保つ)
+                    if (replace.Name.Equals(wav.Name))
+                    {
+                        continue;
+                    }
+
+                    // 一致していれば置換する
+                    if (WaveCompare.IsMatch(_readers[index], _readers[i], _isSameLength, _r2val, _comparator))
+                    {
+                        rep = wav;
+                    }
                 }
 
-                // Ignore same wav
-                if (replacedFiles[i].Name.Equals(_originalFiles[i].Name))
-                {
-                    continue;
-                }
-
-                // Replace wav, if match 2 wavs
-                if (WaveCompare.IsMatch(_readers[index], _readers[i], _isSameLength, _r2val, _comparator))
-                {
-                    replacedFiles[i] = _originalFiles[i];
-                }
+                replaces.Add(rep);
+                i++;
             }
+
+            return replaces;
         }
     }
 }

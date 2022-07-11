@@ -16,13 +16,12 @@ namespace BeMSic.BmsFileOperator
         /// <returns>#WAV絶対パス</returns>
         public static WavFileUnitUtility GetWavsFullPath(string bms, string bmsDirectory)
         {
-            var wavs = GetWavsRelativePath(bms).Get();
-
+            var wavs = GetWavsRelativePath(bms);
             WavFileUnitUtility wavFiles = new ();
-            foreach (WavFileUnit wav in wavs)
+
+            foreach (var wav in wavs.GetUnit())
             {
-                wav.Name = bmsDirectory + "\\" + wav.Name;
-                wavFiles.Add(wav);
+                wavFiles.Add(wav.Wav.Num, bmsDirectory + "\\" + wav.Name);
             }
 
             return wavFiles;
