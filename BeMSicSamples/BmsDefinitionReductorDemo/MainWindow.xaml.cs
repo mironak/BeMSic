@@ -218,7 +218,7 @@ namespace BmsDefinitionReductor
         {
             ObservableCollection<WavFileUnitEx> fileList = new ObservableCollection<WavFileUnitEx>();
 
-            foreach (var file in fileListBase.GetUnit())
+            foreach (var file in fileListBase.Files)
             {
                 fileList.Add(new WavFileUnitEx(file));
             }

@@ -65,6 +65,15 @@ namespace BeMSic.Core.BmsDefinition
         }
 
         /// <summary>
+        /// get hash code
+        /// </summary>
+        /// <returns>hash code</returns>
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Num, ZZ);
+        }
+
+        /// <summary>
         /// 比較
         /// </summary>
         /// <param name="other">他インスタンス</param>

@@ -19,7 +19,7 @@ namespace BeMSic.BmsFileOperator
             var wavs = GetWavsRelativePath(bms);
             WavFileUnitUtility wavFiles = new ();
 
-            foreach (var wav in wavs.GetUnit())
+            foreach (var wav in wavs.Files)
             {
                 wavFiles.Add(wav.Wav.Num, bmsDirectory + "\\" + wav.Name);
             }

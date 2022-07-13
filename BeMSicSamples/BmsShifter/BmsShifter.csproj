@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BeMSic.BmsFileOperator\BeMSic.BmsFileOperator.csproj" />
+    <ProjectReference Include="..\..\BeMSic.BmsFileOperator\BeMSic.BmsFileOperator.csproj" />
   </ItemGroup>
 
 </Project>

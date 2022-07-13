@@ -7,15 +7,15 @@ namespace BeMSic.Core.BmsDefinition
     /// </summary>
     public class WavFileUnitUtility
     {
-        private List<WavFileUnit> _files;
-
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public WavFileUnitUtility()
         {
-            _files = new List<WavFileUnit>();
+            Files = new List<WavFileUnit>();
         }
+
+        public List<WavFileUnit> Files { get; }
 
         /// <summary>
         /// WAVファイル情報追加
@@ -24,7 +24,7 @@ namespace BeMSic.Core.BmsDefinition
         /// <param name="name">ファイル名</param>
         public void Add(int num, string name)
         {
-            _files.Add(new WavFileUnit(num, name));
+            Files.Add(new WavFileUnit(num, name));
         }
 
         /// <summary>
@@ -33,19 +33,7 @@ namespace BeMSic.Core.BmsDefinition
         /// <param name="wav">#WAV情報</param>
         public void Add(WavFileUnit wav)
         {
-            _files.Add(wav);
-        }
-
-        /// <summary>
-        /// WAVを順に返す
-        /// </summary>
-        /// <returns>#WAV番号</returns>
-        public IEnumerable<WavFileUnit> GetUnit()
-        {
-            for (int i = 0; i < _files.Count; i++)
-            {
-                yield return _files[i];
-            }
+            Files.Add(wav);
         }
 
         /// <summary>
@@ -54,7 +42,7 @@ namespace BeMSic.Core.BmsDefinition
         /// <returns>ファイル数</returns>
         public int Count()
         {
-            return _files.Count;
+            return Files.Count;
         }
 
         /// <summary>
@@ -63,7 +51,7 @@ namespace BeMSic.Core.BmsDefinition
         /// <param name="start">#WAV定義開始番号</param>
         /// <param name="end">#WAV定義最終番号</param>
         /// <returns>#WAV定義一覧(startからendまで)</returns>
-        public WavFileUnitUtility GetPartialWavs(WavDefinition start, WavDefinition end)
+        public List<WavFileUnit> GetPartialWavs(WavDefinition start, WavDefinition end)
         {
             if (!IsInRange(start, end))
             {
@@ -95,11 +83,11 @@ namespace BeMSic.Core.BmsDefinition
         /// <param name="start">#WAV定義開始番号</param>
         /// <param name="end">#WAV定義最終番号</param>
         /// <returns>#WAV定義一覧(startからendまで)</returns>
-        private WavFileUnitUtility GetPartialWavsCore(WavDefinition start, WavDefinition end)
+        private List<WavFileUnit> GetPartialWavsCore(WavDefinition start, WavDefinition end)
         {
-            WavFileUnitUtility partialWavs = new ();
+            List<WavFileUnit> partialWavs = new ();
 
-            foreach (WavFileUnit wav in _files)
+            foreach (WavFileUnit wav in Files)
             {
                 if (wav.Wav.Num < start.Num)
                 {

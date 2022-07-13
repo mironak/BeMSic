@@ -91,7 +91,7 @@ namespace BeMSic.BmsFileOperator.LineOperation
         internal string OffsetMainLineDefinition(WavDefinitions wavs, int offset)
         {
             List<BmsReplace> offsetedWavs = new ();
-            foreach (var wav in wavs.GetUnit())
+            foreach (var wav in wavs.Wavs)
             {
                 offsetedWavs.Add(new BmsReplace(wav, new WavDefinition(wav.Num + offset)));
             }

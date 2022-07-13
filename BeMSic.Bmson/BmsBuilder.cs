@@ -207,11 +207,9 @@ namespace BeMSic.Bmson
         /// </summary>
         private void SetWavField()
         {
-            // Set each #WAV
-            int i = 1;
-            foreach (var wav in _wavs.GetUnit())
+            foreach (var wav in _wavs.Files)
             {
-                _builder.Append(GetWavLineText(i, wav.Name));
+                _builder.Append(GetWavLineText(wav.Wav.Num, wav.Name));
             }
 
             _builder.AppendLine(string.Empty);

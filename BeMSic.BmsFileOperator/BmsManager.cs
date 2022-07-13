@@ -70,7 +70,7 @@ namespace BeMSic.BmsFileOperator
         {
             List<BmsReplace> replaceList = new ();
             int index = 1;
-            foreach (var wav in nowWavs.GetUnit())
+            foreach (var wav in nowWavs.Wavs)
             {
                 var newWav = new WavDefinition(index++);
                 replaceList.Add(new BmsReplace(wav, newWav));

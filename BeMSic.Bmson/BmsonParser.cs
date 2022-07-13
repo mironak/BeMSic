@@ -76,7 +76,7 @@ namespace BeMSic.Bmson
                         sampleStart,
                         sampleNext);
                     waveIO.Trim(wavFilePath, sampleStart - prevContinuous, sampleNext - prevContinuous);
-                    bmsBuilder.AppendWav(new WavFileUnit(i, Path.GetFileName(wavFilePath)));
+                    bmsBuilder.AppendWav(new WavFileUnit(i + 1, Path.GetFileName(wavFilePath)));
                     sampleStart = sampleNext;
                 }
             }

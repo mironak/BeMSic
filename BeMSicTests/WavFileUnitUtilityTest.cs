@@ -18,7 +18,7 @@ namespace BeMSicTests
             var partials = files.GetPartialWavs(new WavDefinition(100), new WavDefinition(200));
 
             int unitNum = 0;
-            foreach (var wav in partials.GetUnit())
+            foreach (var wav in partials)
             {
                 Assert.Equal(unitNum * 5 + 101, wav.Wav.Num);
                 unitNum++;

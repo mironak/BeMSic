@@ -5,15 +5,15 @@
     /// </summary>
     public class WavDefinitions
     {
-        private List<WavDefinition> _wavs;
-
         /// <summary>
         /// コンストラクタ
         /// </summary>
         public WavDefinitions()
         {
-            _wavs = new List<WavDefinition>();
+            Wavs = new List<WavDefinition>();
         }
+
+        public List<WavDefinition> Wavs { get; }
 
         /// <summary>
         /// #WAV定義を追加する
@@ -21,7 +21,7 @@
         /// <param name="wav">#WAV定義</param>
         public void Add(WavDefinition wav)
         {
-            _wavs.Add(wav);
+            Wavs.Add(wav);
         }
 
         /// <summary>
@@ -30,9 +30,9 @@
         /// <param name="wavs">#WAV定義一覧</param>
         public void AddRange(WavDefinitions wavs)
         {
-            foreach (WavDefinition wav in wavs.GetUnit())
+            foreach (WavDefinition wav in wavs.Wavs)
             {
-                _wavs.Add(wav);
+                Wavs.Add(wav);
             }
         }
 
@@ -43,7 +43,7 @@
         /// <returns>引数の#WAV番号があればtrue</returns>
         public bool Contains(WavDefinition wav)
         {
-            return _wavs.Contains(wav);
+            return Wavs.Contains(wav);
         }
 
         /// <summary>
@@ -52,7 +52,7 @@
         /// <returns>#WAV番号一覧</returns>
         public WavDefinitions GetUnique()
         {
-            var dt = _wavs.Distinct().OrderBy(i => i);
+            var dt = Wavs.Distinct().OrderBy(i => i.Num);
 
             var aaa = new WavDefinitions();
             foreach (var a in dt)
@@ -69,19 +69,7 @@
         /// <returns>#WAV番号</returns>
         public WavDefinition GetMax()
         {
-            return new WavDefinition(_wavs.Max(x => x.Num));
-        }
-
-        /// <summary>
-        /// #WAV番号を順に返す
-        /// </summary>
-        /// <returns>#WAV番号</returns>
-        public IEnumerable<WavDefinition> GetUnit()
-        {
-            for (int i = 0; i < _wavs.Count; i++)
-            {
-                yield return _wavs[i];
-            }
+            return new WavDefinition(Wavs.Max(x => x.Num));
         }
     }
 }
