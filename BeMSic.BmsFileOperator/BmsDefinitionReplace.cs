@@ -167,60 +167,45 @@ namespace BeMSic.BmsFileOperator
             return wavs;
         }
 
-        //// <summary>
-        //// BMS1にBMS2を追加する
-        //// </summary>
-        //// <param name="bms2">BMS2テキスト</param>
-        //// <returns>合体後BMS</returns>
-        ////public string GetMargedBms(string bms2)
-        ////{
-        ////    int bms1WavMax = GetUsedWavList().Max();
-        ////    int bms2WavMax = GetUsedWavList(bms2).Max();
+        /// <summary>
+        /// BMS2の#WAV定義を追加する
+        /// </summary>
+        /// <param name="bms">BMSテキスト</param>
+        /// <returns>合体後BMS</returns>
+        public string GetWavMargedBmsFile(string bms)
+        {
+            var bms1WavMax = GetUsedWavList().GetMax();
+            var rep = new BmsDefinitionReplace(bms);
+            var bms2WavMax = rep.GetUsedWavList().GetMax();
 
-        ////    // 定義数ZZ確認
-        //    if (bms1WavMax + bms2WavMax > 1295)
-        //    {
-        //        throw new ArgumentOutOfRangeException(nameof(_bms) + nameof(bms2), "Definition over");
-        //    }
+            // 定義数ZZ確認
+            if (bms1WavMax.Num + bms2WavMax.Num > 1295)
+            {
+                throw new ArgumentOutOfRangeException(nameof(_bms) + nameof(bms), "Definition over");
+            }
 
-        ////    int max = 0;
-        //    string writeBmsData = string.Empty;
-        //    string bmsOffsetted = new BmsConverter(bms2).Offset(bms1WavMax).Bms;
+            string writeBmsData = string.Empty;
+            string bmsOffsetted = new BmsConverter(bms).Offset(bms1WavMax.Num).Bms;
 
-        ////    using (StringReader sr = new (_bms))
-        //    {
-        //        string? readLine;
-        //        while ((readLine = sr.ReadLine()) != null)
-        //        {
-        //            writeBmsData += readLine + "\n";
+            using (StringReader sr = new (_bms))
+            {
+                string? readLine;
+                while ((readLine = sr.ReadLine()) != null)
+                {
+                    writeBmsData += readLine + "\n";
 
-        ////            switch (BmsCommandSearch.GetLineCommand(readLine))
-        //            {
-        //                case BmsCommandSearch.BmsCommand.WAV:
-        //                    writeBmsData += AddBmsLine(readLine, bms1WavMax, bmsOffsetted);
-        //                    break;
+                    var bmsLine = new BmsLine(readLine);
+                    if (bmsLine.IsWav())
+                    {
+                        writeBmsData += AddBmsLine(readLine, bms1WavMax.Num, bmsOffsetted);
+                    }
 
-        ////                case BmsCommandSearch.BmsCommand.MAIN:
-        //                    int now = GetLineNumber(readLine);
+                    writeBmsData += readLine + "\n";
+                }
+            }
 
-        ////                    // 最終小節番号を保持
-        //                    if (max < now)
-        //                    {
-        //                        max = now;
-        //                    }
-
-        ////                    break;
-
-        ////                default:
-        //                    break;
-        //            }
-        //        }
-        //    }
-
-        ////    writeBmsData += AddMainLine(bmsOffsetted, max + 1) + "\n";
-
-        ////    return writeBmsData;
-        ////}
+            return writeBmsData;
+        }
 
         /// <summary>
         /// #WAVインデックスを前詰めしたBMSデータを取得する
@@ -244,6 +229,13 @@ namespace BeMSic.BmsFileOperator
             return writeData;
         }
 
+        /// <summary>
+        /// 行が#WAV定義の最終行のとき、その後ろに#WAV定義を追加する
+        /// </summary>
+        /// <param name="line">行</param>
+        /// <param name="finalWav">#WAV最終番号</param>
+        /// <param name="bms2">BMS</param>
+        /// <returns>#WAV追加後行</returns>
         private static string AddBmsLine(string line, int finalWav, string bms2)
         {
             int now = RadixConvert.ZZToInt(line.Substring(4, 2));
@@ -262,48 +254,6 @@ namespace BeMSic.BmsFileOperator
                     var bmsLine = new BmsLine(readLine);
 
                     if (bmsLine.IsWav())
-                    {
-                        writeData += readLine + "\n";
-                    }
-                }
-            }
-
-            return writeData;
-        }
-
-        // MAIN行の小節番号を取得する
-        private static int GetLineNumber(string line)
-        {
-            bool success = int.TryParse(line.AsSpan(1, 3), out int now);
-            if (!success)
-            {
-                return 0;
-            }
-
-            return now;
-        }
-
-        // BMS2のMAINレーンをBMS1の最終小節以降の小節番号に変えたものを取得
-        private static string AddMainLine(string bms2, int maxLine)
-        {
-            string writeData = string.Empty;
-            bool isMainLine = false;
-
-            using (StringReader sr = new (bms2))
-            {
-                string? readLine;
-                while ((readLine = sr.ReadLine()) != null)
-                {
-                    var bmsLine = new BmsLine(readLine);
-                    if (bmsLine.IsMain() || bmsLine.IsMainNotObject())
-                    {
-                        isMainLine = true;
-                        var mainLine = new MainLine(readLine);
-                        writeData += mainLine.OffsetMainLineBar(maxLine) + "\n";
-                        continue;
-                    }
-
-                    if (isMainLine)
                     {
                         writeData += readLine + "\n";
                     }

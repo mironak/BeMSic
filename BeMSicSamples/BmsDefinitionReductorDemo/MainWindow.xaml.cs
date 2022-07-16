@@ -5,7 +5,6 @@ using BmsDefinitionReductorDemo.Class;
 using Microsoft.Win32;
 using NAudio.Wave;
 using System;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;

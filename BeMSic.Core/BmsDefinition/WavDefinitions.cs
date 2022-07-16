@@ -13,6 +13,9 @@
             Wavs = new List<WavDefinition>();
         }
 
+        /// <summary>
+        /// #WAV定義一覧
+        /// </summary>
         public List<WavDefinition> Wavs { get; }
 
         /// <summary>
@@ -52,15 +55,15 @@
         /// <returns>#WAV番号一覧</returns>
         public WavDefinitions GetUnique()
         {
-            var dt = Wavs.Distinct().OrderBy(i => i.Num);
+            var distincted = Wavs.Distinct().OrderBy(i => i.Num);
 
-            var aaa = new WavDefinitions();
-            foreach (var a in dt)
+            var ret = new WavDefinitions();
+            foreach (var wav in distincted)
             {
-                aaa.Add(a);
+                ret.Add(wav);
             }
 
-            return aaa;
+            return ret;
         }
 
         /// <summary>
