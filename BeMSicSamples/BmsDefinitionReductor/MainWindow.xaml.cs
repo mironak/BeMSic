@@ -1,7 +1,7 @@
 ﻿using BeMSic.BmsFileOperator;
 using BeMSic.Core.BmsDefinition;
 using BeMSic.Wave;
-using BmsDefinitionReductorDemo.Class;
+using BmsDefinitionReductor.Class;
 using Microsoft.Win32;
 using NAudio.Wave;
 using System;
@@ -20,7 +20,7 @@ namespace BmsDefinitionReductor
     public partial class MainWindow : Window
     {
         BmsConverter? _bmsConverter;
-        WavFileUnitUtility _files;
+        WavFileUnitUtility? _files;
         readonly string OutputFileName = @"out.bms";
         private Progress<int> _progress;
 
@@ -39,13 +39,13 @@ namespace BmsDefinitionReductor
                 switch (percent)
                 {
                     case 100:
-                        StatusLabel.Content = "完了しました。";
+                        StatusLabel.Content = Properties.Resources.StatusLabelContentComplete;
                         DefinitionReductButton.IsEnabled = true;
                         LoadBmsButton.IsEnabled = true;
                         break;
 
                     default:
-                        StatusLabel.Content = "実行中...";
+                        StatusLabel.Content = Properties.Resources.StatusLabelContentProcessing;
                         break;
                 }
             });
@@ -60,7 +60,7 @@ namespace BmsDefinitionReductor
         {
             var dialog = new OpenFileDialog
             {
-                Filter = "BMSファイル (*.*)|*.*"
+                Filter = Properties.Resources.LoadBmsDialogFilter,
             };
 
             try
@@ -86,7 +86,7 @@ namespace BmsDefinitionReductor
             }
             catch
             {
-                MessageBox.Show("BMSファイルを読み込んでください。");
+                MessageBox.Show(Properties.Resources.StatusLabelContentWaitFile);
             }
         }
 
@@ -107,7 +107,7 @@ namespace BmsDefinitionReductor
             }
             catch
             {
-                MessageBox.Show("wavファイルがありません。");
+                MessageBox.Show(Properties.Resources.MessageFileNotFound);
             }
         }
 
@@ -121,7 +121,7 @@ namespace BmsDefinitionReductor
             // ダイアログ表示
             var dialog = new SaveFileDialog
             {
-                Filter = "出力BMSファイル(*.bms)|*.bms|全てのファイル(*.*)|*.*",
+                Filter = Properties.Resources.LoadBmsDialogFilter,
                 FileName = OutputFileName
             };
 
@@ -138,7 +138,7 @@ namespace BmsDefinitionReductor
             }
             catch
             {
-                MessageBox.Show("相関係数は0から1の間で入力してください。");
+                MessageBox.Show(Properties.Resources.MessageR2valOutOfRange);
                 return;
             }
 
@@ -166,13 +166,13 @@ namespace BmsDefinitionReductor
             }
             catch (ArgumentOutOfRangeException)
             {
-                MessageBox.Show("定義は2桁の01-ZZで、右の値が大きくなるように入力してください。");
-                StatusLabel.Content = "BMSファイルを読み込んでください。";
+                MessageBox.Show(Properties.Resources.MessageWavOutOfRange);
+                StatusLabel.Content = Properties.Resources.StatusLabelContentWaitFile;
             }
             catch
             {
-                MessageBox.Show("ファイルが見つかりませんでした。");
-                StatusLabel.Content = "BMSファイルを読み込んでください。";
+                MessageBox.Show(Properties.Resources.MessageFileNotFound);
+                StatusLabel.Content = Properties.Resources.StatusLabelContentWaitFile;
             }
             finally
             {

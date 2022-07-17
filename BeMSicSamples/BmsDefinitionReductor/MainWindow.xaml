@@ -4,11 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BmsDefinitionReductor"
+        xmlns:properties="clr-namespace:BmsDefinitionReductor.Properties"
         mc:Ignorable="d"
         Title="BMS Definition Reductor" Height="450" Width="450">
     <Grid>
-        <Button x:Name="LoadBmsButton" Content="BMSファイルの読み込み" HorizontalAlignment="Left" Margin="22,10,0,0" VerticalAlignment="Top" Width="182" Click="LoadBms_Button_Click"/>
-        <Button x:Name="DefinitionReductButton" Content="開始" Margin="0,10,28,0" VerticalAlignment="Top" Click="DefinitionReuseButton_Click" IsEnabled="False" HorizontalAlignment="Right" Width="106"/>
+        <Button x:Name="LoadBmsButton" Content="{x:Static properties:Resources.LoadBmsButtonContent}" HorizontalAlignment="Left" Margin="22,10,0,0" VerticalAlignment="Top" Width="182" Click="LoadBms_Button_Click"/>
+        <Button x:Name="DefinitionReductButton" Content="{x:Static properties:Resources.DefinitionReductButtonContent}" Margin="0,10,28,0" VerticalAlignment="Top" Click="DefinitionReuseButton_Click" IsEnabled="False" HorizontalAlignment="Right" Width="106"/>
 
         <TextBox x:Name="R2TextBox" Text="0.9" HorizontalAlignment="Left" Height="22" Margin="190,39,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="30"/>
         <Label Content="同一とみなす相関係数(0-1):" HorizontalAlignment="Left" Margin="22,35,0,0" VerticalAlignment="Top"/>

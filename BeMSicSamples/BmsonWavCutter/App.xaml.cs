@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace WavCutterBmsonToBmsDemo
+namespace BmsonWavCutter
 {
     /// <summary>
     /// Interaction logic for App.xaml

@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
 
-namespace WavCutterBmsonToBmsDemo
+namespace BmsonWavCutter
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -14,7 +14,7 @@ namespace WavCutterBmsonToBmsDemo
         BmsonParser? _bmson;
         string _bmsonFileName = "";
 
-        class WavList
+        private class WavList
         {
             public int ID { get; set; }
             public string? Name { get; set; }
@@ -36,11 +36,11 @@ namespace WavCutterBmsonToBmsDemo
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void FileOpenButton_Click(object sender, RoutedEventArgs e)
+        private void OpenBmsonButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new OpenFileDialog
             {
-                Filter = "BMSONファイル (*.*)|*.*"
+                Filter = "bmsonファイル (*.bmson)|*.bmson|すべてのファイル|*.*"
             };
 
             try
@@ -62,7 +62,7 @@ namespace WavCutterBmsonToBmsDemo
             }
             catch
             {
-                MessageBox.Show("BMSONファイルを読み込んでください。");
+                MessageBox.Show("bmsonファイルを読み込んでください。");
             }
         }
 
@@ -76,7 +76,7 @@ namespace WavCutterBmsonToBmsDemo
             // 出力するwavを取得
             var chIndex = WavComboBox.SelectedIndex;
             WriteWavs(chIndex);
-            MessageBox.Show("終了しました。");
+            MessageBox.Show("Completed");
         }
 
         /// <summary>
@@ -90,7 +90,7 @@ namespace WavCutterBmsonToBmsDemo
             {
                 WriteWavs(i);
             }
-            MessageBox.Show("終了しました。");
+            MessageBox.Show("Completed");
         }
 
         /// <summary>

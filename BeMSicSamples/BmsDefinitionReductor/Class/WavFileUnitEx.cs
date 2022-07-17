@@ -1,7 +1,7 @@
 ﻿using BeMSic.Core.BmsDefinition;
 using BeMSic.Core.Helpers;
 
-namespace BmsDefinitionReductorDemo.Class
+namespace BmsDefinitionReductor.Class
 {
     public class WavFileUnitEx : WavFileUnit
     {

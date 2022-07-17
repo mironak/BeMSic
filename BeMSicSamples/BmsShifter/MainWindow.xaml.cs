@@ -24,11 +24,11 @@ namespace BmsShifter
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             var loadDialog = new OpenFileDialog
             {
-                Filter = "BMSファイル (*.*)|*.*"
+                Filter = "bmsファイル|*.bms;*.bme;*.bml;*.pms|すべてのファイル|*.*"
             };
             var saveDialog = new SaveFileDialog
             {
-                Filter = "BMSファイル (*.*)|*.*"
+                Filter = "bmsファイル|*.bms;*.bme;*.bml;*.pms|すべてのファイル|*.*"
             };
 
             try
@@ -67,7 +67,7 @@ namespace BmsShifter
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             var dialog = new OpenFileDialog
             {
-                Filter = "BMSファイル (*.*)|*.*"
+                Filter = "bmsファイル|*.bms;*.bme;*.bml;*.pms|すべてのファイル|*.*"
             };
 
             try
