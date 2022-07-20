@@ -61,11 +61,38 @@ namespace BmsDefinitionReductor.Properties {
         }
         
         /// <summary>
+        ///   Reuse #WAV definition range: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string DefinitionRangeLabelContent {
+            get {
+                return ResourceManager.GetString("DefinitionRangeLabelContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Start に類似しているローカライズされた文字列を検索します。
         /// </summary>
         public static string DefinitionReductButtonContent {
             get {
                 return ResourceManager.GetString("DefinitionReductButtonContent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   File name に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string FilesListViewFilenameHeader {
+            get {
+                return ResourceManager.GetString("FilesListViewFilenameHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Compare same length only に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string LengthMatchCheckBoxContent {
+            get {
+                return ResourceManager.GetString("LengthMatchCheckBoxContent", resourceCulture);
             }
         }
         
@@ -111,6 +138,15 @@ namespace BmsDefinitionReductor.Properties {
         public static string MessageWavOutOfRange {
             get {
                 return ResourceManager.GetString("MessageWavOutOfRange", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Correlation coefficient threshold (0-1): に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        public static string R2LabelContent {
+            get {
+                return ResourceManager.GetString("R2LabelContent", resourceCulture);
             }
         }
         

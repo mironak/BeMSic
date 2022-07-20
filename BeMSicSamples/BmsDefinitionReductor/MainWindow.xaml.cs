@@ -67,22 +67,11 @@ namespace BmsDefinitionReductor
             {
                 if (dialog.ShowDialog() == false)
                 {
+                    MessageBox.Show(Properties.Resources.StatusLabelContentWaitFile);
                     return;
                 }
 
-                string? bmsDirectory = Path.GetDirectoryName(dialog.FileName);
-                if (bmsDirectory == null)
-                {
-                    throw new FileNotFoundException();
-                }
-
-                System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-                var bms = File.ReadAllText(dialog.FileName, Encoding.GetEncoding("shift_jis"));
-                _bmsConverter = new BmsConverter(bms);
-                _files = FileList.GetWavsFullPath(_bmsConverter.Bms, bmsDirectory);
-
-                FilesListView.ItemsSource = GetDisplayedValuesList(_files);
-                DefinitionReductButton.IsEnabled = true;
+                OpenBms(dialog.FileName);
             }
             catch
             {
@@ -181,6 +170,42 @@ namespace BmsDefinitionReductor
         }
 
         /// <summary>
+        /// Windowへのドロップ時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                MessageBox.Show(Properties.Resources.StatusLabelContentWaitFile);
+                return;
+            }
+
+            var fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+            OpenBms(fileNames[0]);
+        }
+
+        /// <summary>
+        /// WindowへのDragOver処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.All;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+
+            e.Handled = true;
+        }
+
+        /// <summary>
         /// 初期表示
         /// </summary>
         private void StateViewInitial()
@@ -237,6 +262,27 @@ namespace BmsDefinitionReductor
                 throw new ArgumentOutOfRangeException();
             }
             return r2val;
+        }
+
+        /// <summary>
+        /// bmsファイルを開く
+        /// </summary>
+        /// <param name="fileName"></param>
+        private void OpenBms(string fileName)
+        {
+            string? bmsDirectory = Path.GetDirectoryName(fileName);
+            if (bmsDirectory == null)
+            {
+                throw new FileNotFoundException();
+            }
+
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            var bms = File.ReadAllText(fileName, Encoding.GetEncoding("shift_jis"));
+            _bmsConverter = new BmsConverter(bms);
+            _files = FileList.GetWavsFullPath(_bmsConverter.Bms, bmsDirectory);
+
+            FilesListView.ItemsSource = GetDisplayedValuesList(_files);
+            DefinitionReductButton.IsEnabled = true;
         }
     }
 }

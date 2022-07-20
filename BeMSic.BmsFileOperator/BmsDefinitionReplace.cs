@@ -192,12 +192,11 @@ namespace BeMSic.BmsFileOperator
                 string? readLine;
                 while ((readLine = sr.ReadLine()) != null)
                 {
-                    writeBmsData += readLine + "\n";
-
                     var bmsLine = new BmsLine(readLine);
                     if (bmsLine.IsWav())
                     {
                         writeBmsData += AddBmsLine(readLine, bms1WavMax.Num, bmsOffsetted);
+                        continue;
                     }
 
                     writeBmsData += readLine + "\n";
@@ -241,11 +240,12 @@ namespace BeMSic.BmsFileOperator
             int now = RadixConvert.ZZToInt(line.Substring(4, 2));
             if (finalWav != now)
             {
-                return string.Empty;
+                return line + "\n";
             }
 
+            string writeData = line + "\n";
+
             // #WAV最終番号の後ろに追加する
-            string writeData = string.Empty;
             using (StringReader sr = new (bms2))
             {
                 string? readLine;

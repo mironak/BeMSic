@@ -40,29 +40,22 @@ namespace BmsonWavCutter
         {
             var dialog = new OpenFileDialog
             {
-                Filter = "bmsonファイル (*.bmson)|*.bmson|すべてのファイル|*.*"
+                Filter = "bmson file|*.bmson|All file|*.*"
             };
 
             try
             {
-                if (dialog.ShowDialog() == true)
+                if (dialog.ShowDialog() != true)
                 {
-                    _bmsonFileName = dialog.FileName;
-
-                    var bmsonText = File.ReadAllText(_bmsonFileName);
-                    _bmson = new BmsonParser(bmsonText);
-
-                    WavComboBox.ItemsSource = GetWavObservableCollection();
-                    WavComboBox.SelectedIndex = 0;
-
-                    OutputButton.IsEnabled = true;
-                    OutputAllButton.IsEnabled = true;
-                    WavComboBox.IsEnabled = true;
+                    MessageBox.Show("Please read the bmson file.");
+                    return;
                 }
+
+                OpenBmson(dialog.FileName);
             }
             catch
             {
-                MessageBox.Show("bmsonファイルを読み込んでください。");
+                MessageBox.Show("Please read the bmson file.");
             }
         }
 
@@ -90,6 +83,7 @@ namespace BmsonWavCutter
             {
                 WriteWavs(i);
             }
+
             MessageBox.Show("Completed");
         }
 
@@ -116,6 +110,7 @@ namespace BmsonWavCutter
             string readWavFilePath = GetReadWavFilePath(_bmson!.Bmson!.sound_channels[chIndex].name);
             if (!File.Exists(readWavFilePath))
             {
+                MessageBox.Show(".wav file not found");
                 return;
             }
 
@@ -151,6 +146,61 @@ namespace BmsonWavCutter
         private string GetOutputBmsDirectoryName(string wavFileName)
         {
             return Path.GetDirectoryName(_bmsonFileName) + "\\" + Path.GetFileNameWithoutExtension(wavFileName);
+        }
+
+        /// <summary>
+        /// Windowへのドロップ時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Drop(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                MessageBox.Show("Please read the bmson file.");
+                return;
+            }
+
+            var fileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+            OpenBmson(fileNames[0]);
+        }
+
+        /// <summary>
+        /// WindowへのDragOver処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_DragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects = DragDropEffects.All;
+            }
+            else
+            {
+                e.Effects = DragDropEffects.None;
+            }
+
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// bmsonファイルを開く
+        /// </summary>
+        /// <param name="fileName"></param>
+        private void OpenBmson(string fileName)
+        {
+            _bmsonFileName = fileName;
+
+            var bmsonText = File.ReadAllText(_bmsonFileName);
+            _bmson = new BmsonParser(bmsonText);
+
+            WavComboBox.ItemsSource = GetWavObservableCollection();
+            WavComboBox.SelectedIndex = 0;
+
+            OutputButton.IsEnabled = true;
+            OutputAllButton.IsEnabled = true;
+            WavComboBox.IsEnabled = true;
         }
     }
 }

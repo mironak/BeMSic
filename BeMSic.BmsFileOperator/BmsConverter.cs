@@ -79,6 +79,18 @@ namespace BeMSic.BmsFileOperator
             return this;
         }
 
+        /// <summary>
+        /// 引数のBMSの#WAV定義を追加する
+        /// </summary>
+        /// <param name="bms">BMSテキスト</param>
+        /// <returns>BmsConverter</returns>
+        public BmsConverter WavMarge(string bms)
+        {
+            _bms = _bmsDefinitionReplace.GetWavMargedBmsFile(bms);
+            _bmsDefinitionReplace = new BmsDefinitionReplace(_bms);
+            return this;
+        }
+
         //// <summary>
         //// BMSを合体する
         //// </summary>
