@@ -39,7 +39,7 @@ namespace BmsShifter
                 // Output wav shifted bms
                 var offset = new WavDefinition(WavStartTextBox.Text);
                 var shift = int.Parse(BgmShiftSizeTextBox.Text);
-                _targetBmsConverter.Offset(offset.Num).Shift(shift);
+                _targetBmsConverter.Offset(offset.Num - 1).Shift(shift);
                 File.WriteAllText(_targetOutputName, _targetBmsConverter.Bms);
 
                 MessageBox.Show("Completed.");
@@ -165,7 +165,8 @@ namespace BmsShifter
             _wavBmsConverter.DeleteUnusedWav().ArrangeWav();
             var replace = new BmsDefinitionReplace(_wavBmsConverter.Bms);
             WavDefinitions wavs = replace.GetUsedWavList();
-            WavStartTextBox.Text = wavs.GetMax().ZZ;
+            var wavStart = new WavDefinition(wavs.GetMax().Num + 1);
+            WavStartTextBox.Text = wavStart.ZZ;
             _wavOutputName = Path.GetDirectoryName(fileName) + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_WavAdded.bms";
         }
 
