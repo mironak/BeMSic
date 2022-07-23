@@ -1,6 +1,7 @@
 ﻿using BeMSic.BmsFileOperator;
 using BeMSic.Core.BmsDefinition;
 using Microsoft.Win32;
+using System;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -21,6 +22,7 @@ namespace BmsShifter
         {
             InitializeComponent();
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            OutputButton.IsEnabled = false;
         }
 
         private void OutputButton_Click(object sender, RoutedEventArgs e)
@@ -42,8 +44,13 @@ namespace BmsShifter
 
                 MessageBox.Show("Completed.");
             }
-            catch
+            //catch (ArgumentOutOfRangeException)
+            //{
+            //    MessageBox.Show("Input is out of range.");
+            //}
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.Message);
                 MessageBox.Show("Please read the bms file.");
             }
         }
@@ -172,6 +179,7 @@ namespace BmsShifter
             _targetBmsConverter = new BmsConverter(bmsText);
             TargetBmsPathTextBox.Text = fileName;
             _targetOutputName = Path.GetDirectoryName(fileName) + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_WavShifted.bms";
+            OutputButton.IsEnabled = true;
         }
     }
 }

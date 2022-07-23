@@ -21,8 +21,10 @@ namespace BmsDefinitionReductor
     {
         BmsConverter? _bmsConverter;
         WavFileUnitUtility? _files;
+        string? _bmsDirectory;
         readonly string OutputFileName = @"out.bms";
         private Progress<int> _progress;
+        string? _outputName;
 
         /// <summary>
         /// Constructor
@@ -30,6 +32,7 @@ namespace BmsDefinitionReductor
         public MainWindow()
         {
             InitializeComponent();
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             StateViewInitial();
 
@@ -89,7 +92,7 @@ namespace BmsDefinitionReductor
             WavFileUnit item = (WavFileUnit)FilesListView.SelectedItem;
             try
             {
-                WaveFileReader reader = new WaveFileReader(item.Name);
+                WaveFileReader reader = new WaveFileReader(_bmsDirectory + "\\" + item.Name);
                 WaveOut waveOut = new WaveOut();
                 waveOut.Init(reader);
                 waveOut.Play();
@@ -107,18 +110,6 @@ namespace BmsDefinitionReductor
         /// <param name="e"></param>
         private async void DefinitionReuseButton_Click(object sender, RoutedEventArgs e)
         {
-            // ダイアログ表示
-            var dialog = new SaveFileDialog
-            {
-                Filter = Properties.Resources.LoadBmsDialogFilter,
-                FileName = OutputFileName
-            };
-
-            if (dialog.ShowDialog() == false)
-            {
-                return;
-            }
-
             // 相関係数の取得
             float r2Val;
             try
@@ -150,7 +141,7 @@ namespace BmsDefinitionReductor
                     var replaces = reductor.GetWavReplaces(_progress);
 
                     _bmsConverter!.Replace(replaces).DeleteUnusedWav().ArrangeWav();
-                    File.WriteAllText(dialog.FileName, _bmsConverter.Bms);
+                    File.WriteAllText(_outputName, _bmsConverter.Bms);
                 });
             }
             catch (ArgumentOutOfRangeException)
@@ -270,18 +261,18 @@ namespace BmsDefinitionReductor
         /// <param name="fileName"></param>
         private void OpenBms(string fileName)
         {
-            string? bmsDirectory = Path.GetDirectoryName(fileName);
-            if (bmsDirectory == null)
+            _bmsDirectory = Path.GetDirectoryName(fileName);
+            if (_bmsDirectory == null)
             {
                 throw new FileNotFoundException();
             }
 
-            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+            _outputName = Path.GetDirectoryName(fileName) + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_reducted.bms";
             var bms = File.ReadAllText(fileName, Encoding.GetEncoding("shift_jis"));
             _bmsConverter = new BmsConverter(bms);
-            _files = FileList.GetWavsFullPath(_bmsConverter.Bms, bmsDirectory);
+            _files = FileList.GetWavsFullPath(_bmsConverter.Bms, _bmsDirectory);
 
-            FilesListView.ItemsSource = GetDisplayedValuesList(_files);
+            FilesListView.ItemsSource = GetDisplayedValuesList(FileList.GetWavsRelativePath(_bmsConverter.Bms));
             DefinitionReductButton.IsEnabled = true;
         }
     }

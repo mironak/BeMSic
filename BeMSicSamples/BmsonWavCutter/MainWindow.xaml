@@ -9,12 +9,13 @@
         DragOver="Window_DragOver"
         Title="Bmson WAV Cutter" Height="350" Width="400" AllowDrop="True">
     <Grid>
-        
-        <Button x:Name="OutputButton" Content="Output" HorizontalAlignment="Left" Margin="35,179,0,0" VerticalAlignment="Top" Height="66" Width="125" Click="OutputButton_Click"/>
-        <ComboBox x:Name="WavComboBox" HorizontalAlignment="Left" Margin="37,100,0,0" VerticalAlignment="Top" Width="306" SelectedValuePath="ID" DisplayMemberPath="Name"/>
+
+        <Button x:Name="OutputButton" Content="Output" HorizontalAlignment="Left" Margin="35,224,0,0" VerticalAlignment="Top" Height="66" Width="125" Click="OutputButton_Click"/>
+        <ComboBox x:Name="WavComboBox" HorizontalAlignment="Left" Margin="37,145,0,0" VerticalAlignment="Top" Width="306" SelectedValuePath="ID" DisplayMemberPath="Name"/>
         <Button x:Name="OpenBmsonButton" Content="Open bmson" HorizontalAlignment="Left" Margin="37,29,0,0" VerticalAlignment="Top" Height="43" Width="306" Click="OpenBmsonButton_Click"/>
-        <Button x:Name="OutputAllButton" Content="Output all" HorizontalAlignment="Left" Margin="219,179,0,0" VerticalAlignment="Top" Height="66" Width="124" Click="OutputAllButton_Click"/>
-        <CheckBox x:Name="BgmLaneOnlyCheckBox" Content="BGM Lane only" HorizontalAlignment="Left" Margin="37,152,0,0" VerticalAlignment="Top"/>
+        <Button x:Name="OutputAllButton" Content="Output all" HorizontalAlignment="Left" Margin="219,224,0,0" VerticalAlignment="Top" Height="66" Width="124" Click="OutputAllButton_Click"/>
+        <CheckBox x:Name="BgmLaneOnlyCheckBox" Content="BGM Lane only" HorizontalAlignment="Left" Margin="37,197,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="FileNameLabel" HorizontalAlignment="Left" Margin="37,114,0,0" VerticalAlignment="Top" Width="306"/>
 
     </Grid>
 </Window>

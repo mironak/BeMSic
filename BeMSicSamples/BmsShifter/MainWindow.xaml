@@ -5,27 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BmsShifter"
         mc:Ignorable="d"
-        Title="BMS Shifter" Height="250" Width="300">
+        Title="BMS Shifter" Height="300" Width="300">
     <Grid>
         <GroupBox Margin="10,0,10,0" Header="Settings" Height="100" VerticalAlignment="Top" AllowDrop="True" Drop="WavStart_Drop" DragOver="DragOver">
             <StackPanel Margin="10,10,10,0" Height="70" VerticalAlignment="Top">
                 <StackPanel Orientation="Horizontal">
                     <Label x:Name="WavStartLabel" Content="#WAV start" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="90"/>
-                    <TextBox x:Name="WavStartTextBox" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28" PreviewDragOver="DragOver"/>
+                    <TextBox x:Name="WavStartTextBox" Text="01" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28" PreviewDragOver="DragOver"/>
                     <Button x:Name="WavStartFromBmsButton" Content="From BMS" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Height="27" Width="66" Click="WavStartFromBmsButton_Click"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal">
                     <Label x:Name="BgmShiftSizeLabel" Content="BGM shift size" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="90"/>
-                    <TextBox x:Name="BgmShiftSizeTextBox" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28" PreviewDragOver="DragOver"/>
+                    <TextBox x:Name="BgmShiftSizeTextBox" Text="0" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28" PreviewDragOver="DragOver"/>
                 </StackPanel>
             </StackPanel>
         </GroupBox>
 
-        <TextBox x:Name="TargetBmsPathTextBox" Margin="10,105,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Drop="TargetBmsPath_Drop" PreviewDragOver="DragOver" Height="30"/>
-        <Button x:Name="TargetBmsPathButton" Content="Open target" Margin="0,140,10,0" VerticalAlignment="Top" Height="20" Click="TargetBmsPathButton_Click" HorizontalAlignment="Right" Width="83"/>
+        <TextBox x:Name="TargetBmsPathTextBox" Margin="10,139,10,0" TextWrapping="Wrap" VerticalAlignment="Top" Drop="TargetBmsPath_Drop" PreviewDragOver="DragOver" Height="30"/>
+        <Button x:Name="TargetBmsPathButton" Content="Open target" Margin="0,175,10,0" VerticalAlignment="Top" Height="20" Click="TargetBmsPathButton_Click" HorizontalAlignment="Right" Width="83"/>
 
-        <Button x:Name="OutputButton" Content="Output" Margin="10,172,10,0" VerticalAlignment="Top" Click="OutputButton_Click" Height="27"/>
+        <Button x:Name="OutputButton" Content="Output" Margin="10,220,10,0" VerticalAlignment="Top" Click="OutputButton_Click" Height="27"/>
+        <Label x:Name="BmsFilePathTextBox" Content="BMS file path" Margin="10,109,200,149"/>
 
     </Grid>
 </Window>

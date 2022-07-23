@@ -191,6 +191,7 @@ namespace BmsonWavCutter
         private void OpenBmson(string fileName)
         {
             _bmsonFileName = fileName;
+            FileNameLabel.Content = Path.GetFileName(_bmsonFileName);
 
             var bmsonText = File.ReadAllText(_bmsonFileName);
             _bmson = new BmsonParser(bmsonText);
