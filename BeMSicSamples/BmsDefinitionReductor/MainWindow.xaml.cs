@@ -70,7 +70,6 @@ namespace BmsDefinitionReductor
             {
                 if (dialog.ShowDialog() == false)
                 {
-                    MessageBox.Show(Properties.Resources.StatusLabelContentWaitFile);
                     return;
                 }
 
