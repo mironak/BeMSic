@@ -47,7 +47,6 @@ namespace BmsonWavCutter
             {
                 if (dialog.ShowDialog() != true)
                 {
-                    MessageBox.Show("Please read the bmson file.");
                     return;
                 }
 
