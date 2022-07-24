@@ -13,10 +13,7 @@ namespace BmsShifter
     /// </summary>
     public partial class MainWindow : Window
     {
-        BmsConverter? _targetBmsConverter;
-        BmsConverter? _wavBmsConverter;
         string? _targetOutputName;
-        string? _wavOutputName;
 
         public MainWindow()
         {
@@ -29,18 +26,26 @@ namespace BmsShifter
         {
             try
             {
+                var bmsText = File.ReadAllText(TargetBmsPathTextBox.Text, Encoding.GetEncoding("shift_jis"));
+                var targetBmsConverter = new BmsConverter(bmsText);
+
                 // Output wav added bms
-                if (_wavOutputName != null)
+                if (WavBmsPathLabel.Text != String.Empty)
                 {
-                    _wavBmsConverter.WavMarge(_targetBmsConverter.Bms);
-                    File.WriteAllText(_wavOutputName, _wavBmsConverter.Bms);
+                    var wavBmsText = File.ReadAllText(WavBmsPathLabel.Text, Encoding.GetEncoding("shift_jis"));
+                    var wavBmsConverter = new BmsConverter(wavBmsText);
+                    wavBmsConverter.DeleteUnusedWav().ArrangeWav();
+
+                    wavBmsConverter.WavMarge(targetBmsConverter.Bms);
+                    File.WriteAllText(GetWavAddedOutputName(WavBmsPathLabel.Text), wavBmsConverter.Bms);
                 }
 
                 // Output wav shifted bms
                 var offset = new WavDefinition(WavStartTextBox.Text);
                 var shift = int.Parse(BgmShiftSizeTextBox.Text);
-                _targetBmsConverter.Offset(offset.Num - 1).Shift(shift);
-                File.WriteAllText(_targetOutputName, _targetBmsConverter.Bms);
+                targetBmsConverter.Offset(offset.Num - 1).Shift(shift);
+                File.WriteAllText(_targetOutputName, targetBmsConverter.Bms);
+                WavBmsPathLabel.Text = String.Empty;
 
                 MessageBox.Show("Completed.");
             }
@@ -159,15 +164,14 @@ namespace BmsShifter
         /// <param name="fileName"></param>
         private void WavStart_OpenBms(string fileName)
         {
+            WavBmsPathLabel.Text = fileName;
             var bmsText = File.ReadAllText(fileName, Encoding.GetEncoding("shift_jis"));
-            _wavBmsConverter = new BmsConverter(bmsText);
-
-            _wavBmsConverter.DeleteUnusedWav().ArrangeWav();
-            var replace = new BmsDefinitionReplace(_wavBmsConverter.Bms);
+            var wavBmsConverter = new BmsConverter(bmsText);
+            wavBmsConverter.DeleteUnusedWav().ArrangeWav();
+            var replace = new BmsDefinitionReplace(wavBmsConverter.Bms);
             WavDefinitions wavs = replace.GetUsedWavList();
             var wavStart = new WavDefinition(wavs.GetMax().Num + 1);
             WavStartTextBox.Text = wavStart.ZZ;
-            _wavOutputName = Path.GetDirectoryName(fileName) + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_WavAdded.bms";
         }
 
         /// <summary>
@@ -176,11 +180,14 @@ namespace BmsShifter
         /// <param name="fileName"></param>
         private void TargetBmsPath_OpenBms(string fileName)
         {
-            var bmsText = File.ReadAllText(fileName, Encoding.GetEncoding("shift_jis"));
-            _targetBmsConverter = new BmsConverter(bmsText);
             TargetBmsPathTextBox.Text = fileName;
             _targetOutputName = Path.GetDirectoryName(fileName) + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_WavShifted.bms";
             OutputButton.IsEnabled = true;
+        }
+
+        private string GetWavAddedOutputName(string fileName)
+        {
+            return Path.GetDirectoryName(fileName) + "\\" + Path.GetFileNameWithoutExtension(fileName) + "_WavAdded.bms";
         }
     }
 }
