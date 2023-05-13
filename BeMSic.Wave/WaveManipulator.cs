@@ -24,9 +24,11 @@ namespace BeMSic.Wave
         /// <param name="wavFilePath">wavファイルパス</param>
         /// <param name="startPos">開始サンプル</param>
         /// <param name="endPos">終了サンプル</param>
-        public void Trim(string wavFilePath, long startPos, long endPos)
+        /// <param name="feedinSample">フェードインサンプル数</param>
+        /// <param name="feedoutSample">フェードアウトサンプル数</param>
+        public void Trim(string wavFilePath, long startPos, long endPos, int feedinSample, int feedoutSample)
         {
-            FileOperation.WaveIO.TrimWavFile(wavFilePath, _wfr, startPos, endPos);
+            FileOperation.WaveIO.TrimWavFile(wavFilePath, _wfr, startPos, endPos, feedinSample, feedoutSample);
         }
 
         /// <summary>

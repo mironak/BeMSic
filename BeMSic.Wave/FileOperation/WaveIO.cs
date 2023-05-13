@@ -36,7 +36,9 @@ namespace BeMSic.Wave.FileOperation
         /// <param name="reader">wavリーダー</param>
         /// <param name="startPos">開始サンプル</param>
         /// <param name="endPos">終了サンプル</param>
-        internal static void TrimWavFile(string wavFilePath, WaveStream reader, long startPos, long endPos)
+        /// <param name="feedinSample">フェードインサンプル数</param>
+        /// <param name="feedoutSample">フェードアウトサンプル数</param>
+        internal static void TrimWavFile(string wavFilePath, WaveStream reader, long startPos, long endPos, int feedinSample, int feedoutSample)
         {
             using WaveFileWriter writeSr = new (
                 wavFilePath,
@@ -45,24 +47,57 @@ namespace BeMSic.Wave.FileOperation
                     reader.WaveFormat.BitsPerSample,
                     reader.WaveFormat.Channels));
             reader.Position = startPos;
-            byte[] buffer = new byte[reader.WaveFormat.SampleRate * reader.WaveFormat.Channels];
 
-            while (true)
+            int bytesRequired = (int)(endPos - reader.Position);
+            int count = (((bytesRequired - 1) / reader.WaveFormat.BlockAlign) + 1) * reader.WaveFormat.BlockAlign;
+            byte[] buffer = new byte[count];
+            int bytesRead = reader.Read(buffer, 0, count);
+
+            // feedin
+            for (int i = 0; i < feedinSample; i++)
             {
-                int bytesRequired = (int)(endPos - reader.Position);
-                int bytesToRead = Math.Min(bytesRequired, buffer.Length);
-                int bytesRead = reader.Read(buffer, 0, (((bytesToRead - 1) / 4) + 1) * 4);
-                if (bytesRead <= 0)
+                if (4 * i >= count)
                 {
-                    // End data
-                    break;
+                    return;
                 }
 
-                writeSr.Write(buffer, 0, bytesRead);
-                if (endPos <= reader.Position)
+                short val1 = (short)(BitConverter.ToInt16(buffer, 4 * i) * i / feedinSample);
+                short val2 = (short)(BitConverter.ToInt16(buffer, (4 * i) + 2) * i / feedinSample);
+                byte[] bytes1 = BitConverter.GetBytes(val1);
+                byte[] bytes2 = BitConverter.GetBytes(val2);
+
+                byte[] newArray = new byte[bytes1.Length + bytes2.Length];
+                bytes1.CopyTo(newArray, 0);
+                bytes2.CopyTo(newArray, bytes1.Length);
+
+                writeSr.Write(newArray, 0, 4);
+            }
+
+            if (bytesRead - (2 * 4 * feedinSample) < 0)
+            {
+                return;
+            }
+
+            writeSr.Write(buffer, 4 * feedinSample, bytesRead - (2 * 4 * feedinSample));
+
+            // feedout
+            for (int i = 0; i < feedoutSample; i++)
+            {
+                if (4 * i >= count)
                 {
-                    break;
+                    return;
                 }
+
+                short val1 = (short)(BitConverter.ToInt16(buffer, bytesRead + (4 * (i - feedoutSample))) * (feedoutSample - 1 - i) / feedoutSample);
+                short val2 = (short)(BitConverter.ToInt16(buffer, bytesRead + (4 * (i - feedoutSample)) + 2) * (feedoutSample - 1 - i) / feedoutSample);
+                byte[] bytes1 = BitConverter.GetBytes(val1);
+                byte[] bytes2 = BitConverter.GetBytes(val2);
+
+                byte[] newArray = new byte[bytes1.Length + bytes2.Length];
+                bytes1.CopyTo(newArray, 0);
+                bytes2.CopyTo(newArray, bytes1.Length);
+
+                writeSr.Write(newArray, 0, 4);
             }
         }
     }

@@ -123,7 +123,7 @@ namespace BmsonWavCutter
                 bgmOnlyIsChecked = (bool)BgmLaneOnlyCheckBox.IsChecked;
             }
 
-            var bmsText = _bmson.CutWav(saveDirectory, readWavFilePath, chIndex, bgmOnlyIsChecked);
+            var bmsText = _bmson.CutWav(saveDirectory, readWavFilePath, chIndex, bgmOnlyIsChecked, int.Parse(FeedinTextBox.Text), int.Parse(FeedoutTextBox.Text));
             File.WriteAllText(saveDirectory + "\\" + "out.bms", bmsText);
         }
 

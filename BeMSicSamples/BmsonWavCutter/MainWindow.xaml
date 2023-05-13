@@ -7,15 +7,20 @@
         mc:Ignorable="d"
         Drop="Window_Drop"
         DragOver="Window_DragOver"
-        Title="Bmson WAV Cutter" Height="350" Width="400" AllowDrop="True">
+        Title="Bmson WAV Cutter" Height="400" Width="400" AllowDrop="True">
     <Grid>
 
-        <Button x:Name="OutputButton" Content="Output" HorizontalAlignment="Left" Margin="35,224,0,0" VerticalAlignment="Top" Height="66" Width="125" Click="OutputButton_Click"/>
+        <Button x:Name="OutputButton" Content="Output" HorizontalAlignment="Left" Margin="37,252,0,0" VerticalAlignment="Top" Height="66" Width="125" Click="OutputButton_Click"/>
         <ComboBox x:Name="WavComboBox" HorizontalAlignment="Left" Margin="37,145,0,0" VerticalAlignment="Top" Width="306" SelectedValuePath="ID" DisplayMemberPath="Name"/>
         <Button x:Name="OpenBmsonButton" Content="Open bmson" HorizontalAlignment="Left" Margin="37,29,0,0" VerticalAlignment="Top" Height="43" Width="306" Click="OpenBmsonButton_Click"/>
-        <Button x:Name="OutputAllButton" Content="Output all" HorizontalAlignment="Left" Margin="219,224,0,0" VerticalAlignment="Top" Height="66" Width="124" Click="OutputAllButton_Click"/>
+        <Button x:Name="OutputAllButton" Content="Output all" HorizontalAlignment="Left" Margin="219,252,0,0" VerticalAlignment="Top" Height="66" Width="124" Click="OutputAllButton_Click"/>
         <CheckBox x:Name="BgmLaneOnlyCheckBox" Content="BGM Lane only" HorizontalAlignment="Left" Margin="37,197,0,0" VerticalAlignment="Top"/>
+
+        <Label x:Name="FeedinSampleLabel" Content="Feedin" HorizontalAlignment="Left" Margin="37,217,0,0" VerticalAlignment="Top" Width="90" Height="28"/>
+        <TextBox x:Name="FeedinTextBox" Text="10" HorizontalAlignment="Left" Margin="122,217,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28"/>
         <Label x:Name="FileNameLabel" HorizontalAlignment="Left" Margin="37,114,0,0" VerticalAlignment="Top" Width="306"/>
+        <Label x:Name="FeedoutSampleLabel" Content="Feedout" HorizontalAlignment="Left" Margin="196,217,0,0" VerticalAlignment="Top" Width="90" Height="28"/>
+        <TextBox x:Name="FeedoutTextBox" Text="10" HorizontalAlignment="Left" Margin="281,217,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28"/>
 
     </Grid>
 </Window>

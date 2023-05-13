@@ -47,8 +47,10 @@ namespace BeMSic.Bmson
         /// <param name="readWavFilePath">切断対象WAVファイルパス</param>
         /// <param name="chIndex">切断対象WAVインデックス</param>
         /// <param name="isBgmOnly">BGMレーンのみに配置するならtrue</param>
+        /// <param name="feedinSample">フェードインサンプル数</param>
+        /// <param name="feedoutSample">フェードアウトサンプル数</param>
         /// <returns>BMSテキスト</returns>
-        public string CutWav(string saveDirectory, string readWavFilePath, int chIndex, bool isBgmOnly)
+        public string CutWav(string saveDirectory, string readWavFilePath, int chIndex, bool isBgmOnly, int feedinSample, int feedoutSample)
         {
             Wave.WaveManipulator waveIO = new (readWavFilePath);
 
@@ -75,7 +77,7 @@ namespace BeMSic.Bmson
                         _bmson.sound_channels[chIndex].name,
                         sampleStart,
                         sampleNext);
-                    waveIO.Trim(wavFilePath, sampleStart - prevContinuous, sampleNext - prevContinuous);
+                    waveIO.Trim(wavFilePath, sampleStart - prevContinuous, sampleNext - prevContinuous, feedinSample, feedoutSample);
                     bmsBuilder.AppendWav(new WavFileUnit(i + 1, Path.GetFileName(wavFilePath)));
                     sampleStart = sampleNext;
                 }
