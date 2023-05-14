@@ -76,6 +76,12 @@
                 return c - 'A' + 10;
             }
 
+            // A-Z
+            if ((c >= 'a') && (c <= 'z'))
+            {
+                return c - 'a' + 10;
+            }
+
             return 0;
         }
     }
