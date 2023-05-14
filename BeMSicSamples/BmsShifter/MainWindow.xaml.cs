@@ -3,6 +3,7 @@ using BeMSic.Core.BmsDefinition;
 using Microsoft.Win32;
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 
@@ -18,6 +19,11 @@ namespace BmsShifter
         public MainWindow()
         {
             InitializeComponent();
+
+            // タイトル
+            var assembly = Assembly.GetExecutingAssembly().GetName();
+            Window.Title = assembly.Name + " " + assembly.Version.ToString();
+
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
             OutputButton.IsEnabled = false;
         }

@@ -2,6 +2,7 @@
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
 using System.Windows;
 
 namespace BmsonWavCutter
@@ -26,6 +27,11 @@ namespace BmsonWavCutter
         public MainWindow()
         {
             InitializeComponent();
+
+            // タイトル
+            var assembly = Assembly.GetExecutingAssembly().GetName();
+            Window.Title = assembly.Name + " " + assembly.Version.ToString();
+
             OutputButton.IsEnabled = false;
             OutputAllButton.IsEnabled = false;
             WavComboBox.IsEnabled = false;

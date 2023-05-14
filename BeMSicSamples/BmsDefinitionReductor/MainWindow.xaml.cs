@@ -7,6 +7,7 @@ using NAudio.Wave;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,6 +33,11 @@ namespace BmsDefinitionReductor
         public MainWindow()
         {
             InitializeComponent();
+
+            // タイトル
+            var assembly = Assembly.GetExecutingAssembly().GetName();
+            Window.Title = assembly.Name + " " + assembly.Version.ToString();
+
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
             StateViewInitial();
