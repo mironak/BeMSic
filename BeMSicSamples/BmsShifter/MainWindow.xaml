@@ -9,7 +9,7 @@
     <Grid>
         <StackPanel Margin="5,5,5,5" VerticalAlignment="Top" Orientation="Vertical">
             <StackPanel>
-                <GroupBox Header="Settings" AllowDrop="True" Drop="WavStart_Drop" DragOver="DragOver" VerticalAlignment="Top">
+                <GroupBox Header="Settings" AllowDrop="True" VerticalAlignment="Top">
                     <StackPanel Margin="5,5,5,5" VerticalAlignment="Top">
                         <StackPanel Orientation="Horizontal">
                             <Label x:Name="WavStartLabel" Content="#WAV start" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" Width="90"/>
@@ -19,14 +19,6 @@
                         <StackPanel Orientation="Horizontal">
                             <Label x:Name="BgmShiftSizeLabel" Content="BGM shift size" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" Width="90"/>
                             <TextBox x:Name="BgmShiftSizeTextBox" Text="0" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="40" Height="28" PreviewDragOver="DragOver"/>
-                        </StackPanel>
-                        
-                        <StackPanel HorizontalAlignment="Right">
-                            <Button x:Name="WavStartFromBmsButton" Content="From BMS" Margin="10,10,0,0" Height="26" Width="66" Click="WavStartFromBmsButton_Click"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock x:Name="WavBmsPathLabel" Margin="10,10,10,0" Height="40" TextWrapping="Wrap"/>
                         </StackPanel>
                     </StackPanel>
                 </GroupBox>
